@@ -1,0 +1,134 @@
+.not-found-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+  text-align: center;
+  padding: 2rem;
+}
+
+.not-found-content {
+  max-width: 500px;
+  padding: 2rem;
+  border-radius: 8px;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+/* 浅色主题 */
+:global(.light) .not-found-content {
+  background-color: #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* 深色主题 */
+:global(.dark) .not-found-content {
+  background-color: #333;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.not-found-content h1 {
+  font-size: 6rem;
+  margin: 0;
+  color: #646cff;
+  line-height: 1;
+}
+
+.not-found-content h2 {
+  font-size: 2rem;
+  margin: 0.5rem 0 1.5rem;
+  line-height: 1.2;
+}
+
+.not-found-content p {
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+}
+
+/* 浅色主题 */
+:global(.light) .not-found-content h2 {
+  color: #333;
+}
+
+:global(.light) .not-found-content p {
+  color: #666;
+}
+
+/* 深色主题 */
+:global(.dark) .not-found-content h2 {
+  color: #f5f5f5;
+}
+
+:global(.dark) .not-found-content p {
+  color: #aaa;
+}
+
+.not-found-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.primary-button {
+  padding: 0.75rem 1.5rem;
+  background-color: #646cff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.primary-button:hover {
+  background-color: #535bf2;
+}
+
+.secondary-button {
+  padding: 0.75rem 1.5rem;
+  background-color: transparent;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+/* 浅色主题 */
+:global(.light) .secondary-button {
+  color: #646cff;
+  border: 1px solid #646cff;
+}
+
+:global(.light) .secondary-button:hover {
+  background-color: rgba(100, 108, 255, 0.1);
+}
+
+/* 深色主题 */
+:global(.dark) .secondary-button {
+  color: #747bff;
+  border: 1px solid #747bff;
+}
+
+:global(.dark) .secondary-button:hover {
+  background-color: rgba(116, 123, 255, 0.1);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .not-found-content h1 {
+    font-size: 4rem;
+  }
+  
+  .not-found-content h2 {
+    font-size: 1.5rem;
+  }
+  
+  .not-found-actions {
+    flex-direction: column;
+  }
+}

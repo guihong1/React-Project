@@ -1,0 +1,91 @@
+.container {
+  padding: 20px;
+  min-height: 100vh;
+}
+
+.container.dark {
+  background-color: #1a1a1a;
+  color: #fff;
+}
+
+.container.light {
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+.title {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.title.dark {
+  color: #fff;
+}
+
+.title.light {
+  color: #333;
+}
+
+.emptyState {
+  padding: 20px;
+  text-align: center;
+}
+
+.emptyState.dark {
+  color: #fff;
+}
+
+.emptyState.light {
+  color: #333;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+  gap: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.chartCard {
+  border-radius: 8px;
+  padding: 20px;
+  position: relative;
+}
+
+.chartCard.dark {
+  background-color: #2a2a2a;
+  box-shadow: 0 2px 8px rgba(255,255,255,0.1);
+}
+
+.chartCard.light {
+  background-color: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.editButton {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  opacity: 0.7;
+  transition: opacity 0.3s ease;
+}
+
+.editButton:hover {
+  opacity: 1;
+}
+
+.editButton.dark {
+  background-color: #444;
+  color: #ddd;
+}
+
+.editButton.light {
+  background-color: #f0f0f0;
+  color: #555;
+}
