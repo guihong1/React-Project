@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAppStore } from '../store';
 import type { DataPoint } from '../types/chart.js';
 import type { AIModel, ImportedDataset } from '../types';
+import ReactMarkdown from 'react-markdown';
 
 // 分析类型定义
 type AnalysisType = 'basic' | 'advanced' | 'business' | 'prediction' | 'anomaly' | 'correlation' | 'clustering';
@@ -350,7 +351,9 @@ export const AIAnalysis: React.FC<AIAnalysisProps> = ({ data }) => {
                   color: theme === 'dark' ? '#ddd' : '#333',
                 }}
               >
-                {insight}
+                <ReactMarkdown>
+                  {insight}
+                </ReactMarkdown>
               </li>
             ))}
           </ul>

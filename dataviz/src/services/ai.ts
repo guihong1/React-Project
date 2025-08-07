@@ -440,10 +440,10 @@ class AIService {
     // 将返回的内容按行分割并过滤空行
     const lines = content.split('\n').filter(line => line.trim().length > 0);
     
-    // 处理可能的Markdown格式
+    // 保留Markdown格式，只进行基本处理
     const insights = lines.map(line => {
-      // 移除Markdown标记，如#、-、*等
-      return line.replace(/^\s*[#\-*>]+\s*/, '');
+      // 保留Markdown标记，只处理可能的前导空格
+      return line.trim();
     });
     
     return insights;
