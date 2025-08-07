@@ -1,6 +1,7 @@
 import React from 'react';
 import { createBrowserRouter, Navigate } from 'react-router-dom';
-import Layout from '../components/Layout';
+import MainLayout from '../components/MainLayout';
+import HomePage from '../components/HomePage';
 import { 
   Dashboard, 
   ChartEditor, 
@@ -9,15 +10,21 @@ import {
   AIAnalysis,
   NotFound 
 } from '../components';
+import { AIConfig } from '../pages';
+import ChartCreator from '../components/ChartCreator';
 
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <Layout />,
+    element: <MainLayout />,
     children: [
       {
         path: '/',
-        element: <Navigate to="/dashboard" replace />
+        element: <Navigate to="/home" replace />
+      },
+      {
+        path: 'home',
+        element: <HomePage />
       },
       {
         path: 'dashboard',
@@ -29,11 +36,11 @@ const router = createBrowserRouter([
       },
       {
         path: 'create',
-        element: <ChartEditor />
+        element: <ChartCreator />
       },
       {
         path: 'edit/:chartId',
-        element: <ChartEditor />
+        element: <ChartCreator />
       },
       {
         path: 'manage',
@@ -42,6 +49,10 @@ const router = createBrowserRouter([
       {
         path: 'ai',
         element: <AIAnalysis />
+      },
+      {
+        path: 'ai-config',
+        element: <AIConfig />
       },
       {
         path: '*',

@@ -5,18 +5,19 @@ import {
   DataImport, 
   ChartEditor, 
   DashboardManager,
-  AIAnalysis
+  AIAnalysis,
+  ChartCreationFlow
 } from '../components';
 import { useAppStore } from '../store';
 import styles from './Home.module.css';
 
 export const Home: React.FC = () => {
   const { theme } = useAppStore();
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'import' | 'create' | 'manage' | 'ai'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'charts' | 'dashboard' | 'import' | 'create' | 'manage' | 'ai'>('charts');
   const [isEditing, setIsEditing] = useState(false);
   const [editingChartId, setEditingChartId] = useState<string | null>(null);
 
-  const handleTabChange = (tab: 'dashboard' | 'import' | 'create' | 'manage' | 'ai') => {
+  const handleTabChange = (tab: 'charts' | 'dashboard' | 'import' | 'create' | 'manage' | 'ai') => {
     setActiveTab(tab);
     // 如果切换到其他标签，取消编辑状态
     if (tab !== 'create') {
@@ -56,6 +57,13 @@ export const Home: React.FC = () => {
         {/* 标签导航 */}
         <div className={`${styles.tabNavigation} ${theme === 'dark' ? styles.dark : styles.light}`}>
           <TabButton 
+            active={activeTab === 'charts'} 
+            onClick={() => handleTabChange('charts')}
+            theme={theme}
+          >
+            图表选择
+          </TabButton>
+          <TabButton 
             active={activeTab === 'dashboard'} 
             onClick={() => handleTabChange('dashboard')}
             theme={theme}
@@ -94,6 +102,11 @@ export const Home: React.FC = () => {
         
         {/* 内容区域 */}
         <div>
+          {activeTab === 'charts' && (
+            <ChartCreationFlow 
+              onCancel={() => handleTabChange('dashboard')}
+            />
+          )}
           {activeTab === 'dashboard' && <Dashboard onEditChart={handleEditChart} />}
           {activeTab === 'import' && <DataImport onImportSuccess={handleImportSuccess} />}
           {activeTab === 'create' && (

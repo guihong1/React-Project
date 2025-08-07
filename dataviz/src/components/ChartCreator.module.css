@@ -1,0 +1,542 @@
+/* 主容器 */
+.container {
+  display: flex;
+  height: calc(100vh - 80px);
+  background: #f5f7fa;
+  overflow: hidden;
+  max-width: 100%;
+  margin: 0;
+}
+
+.container.dark {
+  background: #1e1e1e;
+}
+
+/* 左侧图表类型选择面板 */
+.chartTypePanel {
+  width: 220px;
+  min-width: 220px;
+  background: #ffffff;
+  border-right: 1px solid #e0e0e0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+.chartTypePanel.dark {
+  background: #252525;
+  border-right: 1px solid #333;
+}
+
+.panelHeader {
+  padding: 16px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.panelHeader h2 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+}
+
+.panelHeader p {
+  color: #666;
+  font-size: 12px;
+  margin: 4px 0 0 0;
+}
+
+.container.dark .panelHeader h2 {
+  color: #fff;
+}
+
+.container.dark .panelHeader p {
+  color: #aaa;
+}
+
+.container.dark .panelHeader {
+  border-bottom-color: #333;
+}
+
+/* 移除类别相关样式 */
+
+.chartTypeGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+}
+
+.chartTypeCard {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.chartTypeCard:hover {
+  background: #f5f5f5;
+}
+
+.chartTypeCard.selected {
+  border-color: #1890ff;
+  background: rgba(24, 144, 255, 0.1);
+}
+
+.chartTypeCard.dark {
+  background: #3a3a3a;
+  border-color: #555;
+}
+
+.chartTypeCard.dark:hover {
+  border-color: #667eea;
+  background: #4a4a4a;
+}
+
+.chartIconWrapper {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12px;
+  border-radius: 4px;
+  background: rgba(24, 144, 255, 0.1);
+  flex-shrink: 0;
+}
+
+.chartTypeCard.selected .chartIconWrapper {
+  background: rgba(24, 144, 255, 0.2);
+}
+
+.chartIcon {
+  width: 20px;
+  height: 20px;
+  color: #1890ff;
+}
+
+.chartTypeCard.selected .chartIcon {
+  color: #1890ff;
+}
+
+.chartTypeInfo h4 {
+  font-size: 14px;
+  font-weight: 500;
+  margin: 0;
+  color: #333;
+}
+
+.chartTypeCard.selected .chartTypeInfo h4 {
+  color: #1890ff;
+}
+
+.container.dark .chartTypeInfo h4 {
+  color: #fff;
+}
+
+.container.dark .chartTypeCard.selected .chartTypeInfo h4 {
+  color: #1890ff;
+}
+
+/* 中间预览面板 */
+.previewPanel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #f9f9f9;
+  border-left: 1px solid #e0e0e0;
+  border-right: 1px solid #e0e0e0;
+  min-width: 500px;
+  max-width: calc(100% - 520px);
+}
+
+.previewPanel.dark {
+  background: #2a2a2a;
+  border-right-color: #333;
+}
+
+.previewHeader {
+  display: flex;
+  flex-direction: column;
+  padding: 12px 16px;
+  border-bottom: 1px solid #e0e0e0;
+  background: #fff;
+  gap: 10px;
+}
+
+.previewPanel.dark .previewHeader {
+  border-bottom-color: #333;
+  background: #252525;
+}
+
+.previewHeader h2 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+}
+
+.container.dark .previewHeader h2 {
+  color: #fff;
+}
+
+.previewActions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.chartPreview {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: #fff;
+  margin: 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  min-height: 400px;
+}
+
+.chartPreview.dark {
+  background: #2a2a2a;
+  border-color: #333;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* 右侧配置面板 */
+.configPanel {
+  width: 300px;
+  min-width: 300px;
+  background: #ffffff;
+  overflow-y: auto;
+  flex-shrink: 0;
+}
+
+.configPanel.dark {
+  background: #252525;
+}
+
+.configContent {
+  padding: 16px;
+}
+
+.configSection {
+  margin-bottom: 16px;
+  padding: 12px;
+  background: #f9f9f9;
+  border-radius: 4px;
+  border: 1px solid #e0e0e0;
+}
+
+.configPanel.dark .configSection {
+  background: #2a2a2a;
+  border-color: #333;
+}
+
+.configSection h3 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  margin: 0 0 12px 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.configPanel.dark .configSection h3 {
+  color: #fff;
+  border-bottom-color: #444;
+}
+
+.formGroup {
+  margin-bottom: 16px;
+}
+
+.formGroup label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: #555;
+  margin-bottom: 6px;
+}
+
+.configPanel.dark .formGroup label {
+  color: #ccc;
+}
+
+.input,
+.select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #d9d9d9;
+  border-radius: 2px;
+  font-size: 14px;
+  background: #fff;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.input:focus,
+.select:focus {
+  outline: none;
+  border-color: #1890ff;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+.input.dark,
+.select.dark {
+  background: #333;
+  border-color: #555;
+  color: #fff;
+}
+
+.input.dark:focus,
+.select.dark:focus {
+  border-color: #1890ff;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+/* 宽度和高度设置组已移除 */
+
+.colorGroup {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.colorInput {
+  width: 100%;
+  height: 32px;
+  border: 1px solid #d9d9d9;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.colorInput:hover {
+  border-color: #1890ff;
+}
+
+.checkboxGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  color: #555;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.checkboxLabel:hover {
+  color: #667eea;
+}
+
+.configPanel.dark .checkboxLabel {
+  color: #ccc;
+}
+
+.checkboxLabel input[type="checkbox"] {
+  margin-right: 8px;
+  width: 14px;
+  height: 14px;
+  accent-color: #1890ff;
+}
+
+.axisGroup {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* 按钮样式 */
+.button {
+  padding: 10px 20px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 90px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.primaryButton {
+  background: linear-gradient(135deg, #1890ff 0%, #096dd9 100%);
+  color: white;
+  border-color: #1890ff;
+}
+
+.primaryButton:hover {
+  background: linear-gradient(135deg, #40a9ff 0%, #1890ff 100%);
+  border-color: #40a9ff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.secondaryButton {
+  background: #fff;
+  color: rgba(0, 0, 0, 0.75);
+  border-color: #d9d9d9;
+}
+
+.secondaryButton:hover {
+  color: #1890ff;
+  border-color: #1890ff;
+  background-color: rgba(24, 144, 255, 0.05);
+  transform: translateY(-1px);
+}
+
+.secondaryButton.dark {
+  background: #333;
+  color: rgba(255, 255, 255, 0.65);
+  border-color: #555;
+}
+
+.secondaryButton.dark:hover {
+  color: #40a9ff;
+  border-color: #40a9ff;
+}
+
+/* 滚动条样式 */
+.chartTypePanel::-webkit-scrollbar,
+.configPanel::-webkit-scrollbar {
+  width: 6px;
+}
+
+.chartTypePanel::-webkit-scrollbar-track,
+.configPanel::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 3px;
+}
+
+.chartTypePanel::-webkit-scrollbar-thumb,
+.chartTypePanel::-webkit-scrollbar-thumb {
+  background: rgba(24, 144, 255, 0.3);
+  border-radius: 3px;
+}
+
+.chartTypePanel::-webkit-scrollbar-thumb:hover,
+.configPanel::-webkit-scrollbar-thumb:hover {
+  background: rgba(24, 144, 255, 0.5);
+}
+
+/* 响应式设计 */
+@media (max-width: 1200px) {
+  .chartTypePanel {
+    width: 280px;
+    padding: 20px;
+  }
+  
+  .configPanel {
+    width: 320px;
+  }
+  
+  .configContent {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .container {
+    flex-direction: column;
+    height: auto;
+    min-height: calc(100vh - 80px);
+  }
+  
+  .chartTypePanel {
+    width: 100%;
+    height: auto;
+    max-height: 300px;
+    border-right: none;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  }
+  
+  .categorySection {
+    margin-bottom: 20px;
+  }
+  
+  .chartTypeGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+  }
+  
+  .previewPanel {
+    order: 3;
+    margin: 0;
+  }
+  
+  .configPanel {
+    width: 100%;
+    border-left: none;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    order: 2;
+  }
+  
+  .chartPreview {
+    margin: 16px;
+    padding: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .panelHeader h2 {
+    font-size: 20px;
+  }
+  
+  .previewHeader {
+    padding: 16px 20px;
+    flex-direction: column;
+    gap: 16px;
+    align-items: stretch;
+  }
+  
+  .previewActions {
+    justify-content: center;
+  }
+  
+  .configContent {
+    padding: 16px;
+  }
+  
+  .configSection {
+    padding: 16px;
+    margin-bottom: 20px;
+  }
+  
+  .colorGroup,
+  .axisGroup {
+    grid-template-columns: 1fr;
+  }
+  
+  .chartTypeCard {
+    padding: 12px;
+  }
+  
+  .chartIconWrapper {
+    width: 40px;
+    height: 40px;
+    margin-right: 12px;
+  }
+  
+  .chartIcon {
+    width: 20px;
+    height: 20px;
+  }
+}

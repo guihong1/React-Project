@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppStore } from '../store';
 import type { Dashboard, ChartConfig } from '../types';
+import styles from './DashboardManager.module.css';
 
 interface DashboardManagerProps {}
 
 export const DashboardManager: React.FC<DashboardManagerProps> = () => {
-  const { theme, currentDashboard, setCurrentDashboard, charts } = useAppStore();
+  const { theme, currentDashboard, setCurrentDashboard, charts, removeChart } = useAppStore();
   const navigate = useNavigate();
   const [dashboards, setDashboards] = useState<Dashboard[]>(() => {
     // 从localStorage加载仪表板
@@ -25,6 +26,7 @@ export const DashboardManager: React.FC<DashboardManagerProps> = () => {
   const [newDashboardTitle, setNewDashboardTitle] = useState('');
   const [editingDashboardId, setEditingDashboardId] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState('');
+  const [showChartDropdown, setShowChartDropdown] = useState<string | null>(null);
 
   // 保存仪表板到localStorage
   const saveDashboards = (updatedDashboards: Dashboard[]) => {
@@ -155,68 +157,79 @@ export const DashboardManager: React.FC<DashboardManagerProps> = () => {
     }
   };
 
+  // 删除图表
+  const handleDeleteChart = (chartId: string) => {
+    if (confirm('确定要删除这个图表吗？删除后将从所有仪表板中移除。')) {
+      // 从所有仪表板中移除该图表
+      const updatedDashboards = dashboards.map(dashboard => ({
+        ...dashboard,
+        charts: dashboard.charts.filter(chart => chart.id !== chartId)
+      }));
+      saveDashboards(updatedDashboards);
+      
+      // 更新当前仪表板
+      if (currentDashboard) {
+        const updatedCurrentDashboard = updatedDashboards.find(d => d.id === currentDashboard.id);
+        if (updatedCurrentDashboard) {
+          setCurrentDashboard(updatedCurrentDashboard);
+        }
+      }
+      
+      // 从全局图表列表中删除
+      removeChart(chartId);
+      
+      // 关闭下拉框
+      setShowChartDropdown(null);
+    }
+  };
+
+  // 点击外部关闭下拉框
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (showChartDropdown) {
+        const target = event.target as Element;
+        if (!target.closest('[data-dropdown]')) {
+          setShowChartDropdown(null);
+        }
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showChartDropdown]);
+
   return (
-    <div style={{
-      padding: '20px',
-      backgroundColor: theme === 'dark' ? '#2a2a2a' : '#f8f8f8',
-      borderRadius: '8px',
-      boxShadow: theme === 'dark' ? '0 4px 6px rgba(0, 0, 0, 0.3)' : '0 4px 6px rgba(0, 0, 0, 0.1)',
-      maxWidth: '800px',
-      margin: '0 auto',
-    }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <h2 style={{ color: theme === 'dark' ? '#fff' : '#333', margin: 0 }}>
+    <div className={`${styles.container} ${styles[theme]}`}>
+      <div className={styles.header}>
+        <h2 className={styles.title}>
           仪表板管理
         </h2>
         <button
           onClick={() => navigate('/dashboard')}
-          style={{
-            background: 'none',
-            border: 'none',
-            fontSize: '20px',
-            cursor: 'pointer',
-            color: theme === 'dark' ? '#aaa' : '#666',
-          }}
+          className={styles.closeButton}
         >
           ×
         </button>
       </div>
 
       {/* 创建新仪表板 */}
-      <div style={{
-        marginBottom: '20px',
-        padding: '15px',
-        backgroundColor: theme === 'dark' ? '#333' : '#fff',
-        borderRadius: '4px',
-      }}>
-        <h3 style={{ color: theme === 'dark' ? '#ddd' : '#444', marginTop: 0 }}>
+      <div className={styles.createSection}>
+        <h3 className={styles.sectionTitle}>
           创建新仪表板
         </h3>
-        <div style={{ display: 'flex', gap: '10px' }}>
+        <div className={styles.createForm}>
           <input
             type="text"
             value={newDashboardTitle}
             onChange={(e) => setNewDashboardTitle(e.target.value)}
             placeholder="输入仪表板标题"
-            style={{
-              flex: 1,
-              padding: '8px',
-              borderRadius: '4px',
-              border: `1px solid ${theme === 'dark' ? '#555' : '#ddd'}`,
-              backgroundColor: theme === 'dark' ? '#444' : '#fff',
-              color: theme === 'dark' ? '#fff' : '#333',
-            }}
+            className={styles.input}
           />
           <button
             onClick={handleCreateDashboard}
-            style={{
-              padding: '8px 16px',
-              borderRadius: '4px',
-              border: 'none',
-              backgroundColor: '#646cff',
-              color: '#fff',
-              cursor: 'pointer',
-            }}
+            className={`${styles.button} ${styles.primaryButton}`}
           >
             创建
           </button>
@@ -225,115 +238,63 @@ export const DashboardManager: React.FC<DashboardManagerProps> = () => {
 
       {/* 仪表板列表 */}
       <div>
-        <h3 style={{ color: theme === 'dark' ? '#ddd' : '#444' }}>
+        <h3 className={styles.sectionTitle}>
           我的仪表板
         </h3>
         
         {dashboards.length === 0 ? (
-          <p style={{ color: theme === 'dark' ? '#aaa' : '#666', textAlign: 'center' }}>
+          <p className={styles.emptyMessage}>
             暂无仪表板，请创建新的仪表板
           </p>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <div className={styles.dashboardList}>
             {dashboards.map(dashboard => (
               <div 
                 key={dashboard.id}
-                style={{
-                  padding: '15px',
-                  backgroundColor: theme === 'dark' ? '#333' : '#fff',
-                  borderRadius: '4px',
-                  borderLeft: dashboard.id === currentDashboard?.id 
-                    ? '4px solid #646cff' 
-                    : `4px solid ${theme === 'dark' ? '#333' : '#fff'}`,
-                }}
+                className={`${styles.dashboardCard} ${dashboard.id === currentDashboard?.id ? styles.active : ''}`}
               >
                 {editingDashboardId === dashboard.id ? (
-                  <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+                  <div className={styles.editForm}>
                     <input
                       type="text"
                       value={editingTitle}
                       onChange={(e) => setEditingTitle(e.target.value)}
-                      style={{
-                        flex: 1,
-                        padding: '8px',
-                        borderRadius: '4px',
-                        border: `1px solid ${theme === 'dark' ? '#555' : '#ddd'}`,
-                        backgroundColor: theme === 'dark' ? '#444' : '#fff',
-                        color: theme === 'dark' ? '#fff' : '#333',
-                      }}
+                      className={styles.input}
                     />
                     <button
                       onClick={handleSaveEdit}
-                      style={{
-                        padding: '8px',
-                        borderRadius: '4px',
-                        border: 'none',
-                        backgroundColor: '#4caf50',
-                        color: '#fff',
-                        cursor: 'pointer',
-                      }}
+                      className={`${styles.button} ${styles.successButton}`}
                     >
                       保存
                     </button>
                     <button
                       onClick={handleCancelEdit}
-                      style={{
-                        padding: '8px',
-                        borderRadius: '4px',
-                        border: 'none',
-                        backgroundColor: theme === 'dark' ? '#555' : '#e0e0e0',
-                        color: theme === 'dark' ? '#fff' : '#333',
-                        cursor: 'pointer',
-                      }}
+                      className={`${styles.button} ${styles.secondaryButton}`}
                     >
                       取消
                     </button>
                   </div>
                 ) : (
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                    <h4 style={{ color: theme === 'dark' ? '#fff' : '#333', margin: 0 }}>
+                  <div className={styles.dashboardHeader}>
+                    <h4 className={styles.dashboardTitle}>
                       {dashboard.title}
                     </h4>
-                    <div style={{ display: 'flex', gap: '5px' }}>
+                    <div className={styles.actionButtons}>
                       <button
                         onClick={() => handleStartEdit(dashboard)}
-                        style={{
-                          padding: '5px 10px',
-                          borderRadius: '4px',
-                          border: 'none',
-                          backgroundColor: theme === 'dark' ? '#444' : '#f0f0f0',
-                          color: theme === 'dark' ? '#ddd' : '#555',
-                          cursor: 'pointer',
-                          fontSize: '12px',
-                        }}
+                        className={`${styles.button} ${styles.secondaryButton} ${styles.smallButton}`}
                       >
                         编辑
                       </button>
                       <button
                         onClick={() => handleDeleteDashboard(dashboard.id)}
-                        style={{
-                          padding: '5px 10px',
-                          borderRadius: '4px',
-                          border: 'none',
-                          backgroundColor: '#ff4d4f',
-                          color: '#fff',
-                          cursor: 'pointer',
-                          fontSize: '12px',
-                        }}
+                        className={`${styles.button} ${styles.dangerButton} ${styles.smallButton}`}
                       >
                         删除
                       </button>
                       <button
                         onClick={() => handleSelectDashboard(dashboard)}
-                        style={{
-                          padding: '5px 10px',
-                          borderRadius: '4px',
-                          border: 'none',
-                          backgroundColor: '#646cff',
-                          color: '#fff',
-                          cursor: 'pointer',
-                          fontSize: '12px',
-                        }}
+                        className={`${styles.button} ${styles.primaryButton} ${styles.smallButton}`}
                       >
                         查看
                       </button>
@@ -342,84 +303,75 @@ export const DashboardManager: React.FC<DashboardManagerProps> = () => {
                 )}
                 
                 {/* 图表列表 */}
-                <div>
-                  <div style={{ 
-                    display: 'flex', 
-                    justifyContent: 'space-between', 
-                    alignItems: 'center',
-                    marginBottom: '5px',
-                    borderBottom: `1px solid ${theme === 'dark' ? '#444' : '#eee'}`,
-                    paddingBottom: '5px'
-                  }}>
-                    <span style={{ color: theme === 'dark' ? '#bbb' : '#666', fontSize: '14px' }}>
+                <div className={styles.chartSection}>
+                  <div className={styles.chartHeader}>
+                    <span className={styles.chartCount}>
                       图表 ({dashboard.charts.length})
                     </span>
-                    <div>
-                      <select
-                        onChange={(e) => {
-                          if (e.target.value) {
-                            handleAddChartToDashboard(dashboard.id, e.target.value);
-                            e.target.value = ''; // 重置选择
-                          }
-                        }}
-                        style={{
-                          padding: '5px',
-                          borderRadius: '4px',
-                          border: `1px solid ${theme === 'dark' ? '#555' : '#ddd'}`,
-                          backgroundColor: theme === 'dark' ? '#444' : '#fff',
-                          color: theme === 'dark' ? '#fff' : '#333',
-                          fontSize: '12px',
-                        }}
-                        value=""
+                    <div className={styles.dropdown} data-dropdown>
+                      <button
+                        onClick={() => setShowChartDropdown(showChartDropdown === dashboard.id ? null : dashboard.id)}
+                        className={styles.dropdownButton}
                       >
-                        <option value="">添加图表...</option>
-                        {charts.map(chart => (
-                          <option key={chart.id} value={chart.id}>
-                            {chart.title}
-                          </option>
-                        ))}
-                      </select>
+                        添加图表...
+                        <span className={styles.dropdownArrow}>▼</span>
+                      </button>
+                      
+                      {showChartDropdown === dashboard.id && (
+                        <div className={styles.dropdownMenu}>
+                          {charts.length === 0 ? (
+                            <div className={styles.emptyDropdownMessage}>
+                              暂无可添加的图表
+                            </div>
+                          ) : (
+                            charts.map(chart => (
+                              <div
+                                key={chart.id}
+                                className={styles.dropdownItem}
+                              >
+                                <span
+                                  onClick={() => {
+                                    handleAddChartToDashboard(dashboard.id, chart.id);
+                                    setShowChartDropdown(null);
+                                  }}
+                                  className={styles.dropdownItemText}
+                                >
+                                  {chart.title}
+                                </span>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDeleteChart(chart.id);
+                                  }}
+                                  className={`${styles.button} ${styles.dangerButton} ${styles.miniButton}`}
+                                >
+                                  删除
+                                </button>
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
                   
                   {dashboard.charts.length === 0 ? (
-                    <p style={{ color: theme === 'dark' ? '#aaa' : '#888', fontSize: '14px', textAlign: 'center' }}>
+                    <p className={styles.emptyChartMessage}>
                       暂无图表，请添加图表
                     </p>
                   ) : (
-                    <ul style={{ 
-                      listStyle: 'none', 
-                      padding: 0, 
-                      margin: 0,
-                      maxHeight: '150px',
-                      overflowY: 'auto',
-                    }}>
+                    <ul className={styles.chartList}>
                       {dashboard.charts.map(chart => (
                         <li 
                           key={chart.id}
-                          style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            padding: '8px 5px',
-                            borderBottom: `1px solid ${theme === 'dark' ? '#444' : '#f0f0f0'}`,
-                            fontSize: '14px',
-                          }}
+                          className={styles.chartItem}
                         >
-                          <span style={{ color: theme === 'dark' ? '#ddd' : '#333' }}>
+                          <span className={styles.chartItemText}>
                             {chart.title} ({chart.type})
                           </span>
                           <button
                             onClick={() => handleRemoveChartFromDashboard(dashboard.id, chart.id)}
-                            style={{
-                              padding: '3px 8px',
-                              borderRadius: '4px',
-                              border: 'none',
-                              backgroundColor: theme === 'dark' ? '#555' : '#f0f0f0',
-                              color: theme === 'dark' ? '#ddd' : '#666',
-                              cursor: 'pointer',
-                              fontSize: '12px',
-                            }}
+                            className={`${styles.button} ${styles.secondaryButton} ${styles.smallButton}`}
                           >
                             移除
                           </button>

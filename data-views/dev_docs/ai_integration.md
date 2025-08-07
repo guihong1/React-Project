@@ -1,8 +1,21 @@
-# AI服务集成开发文档
+# AI数据分析服务集成开发文档
 
 ## 功能概述
 
-将真实的AI服务（如OpenAI、通义千问等）集成到DataViz平台中，增强数据分析能力，提供智能化的数据解读、趋势预测、异常检测和可视化建议功能。
+将AI服务（如OpenAI、通义千问等）集成到DataViz平台中，专注于提供智能化的数据分析和可视化优化功能。AI服务作为后台分析引擎，自动处理数据并生成洞察报告，不提供交互式对话功能。
+
+## 核心定位
+
+**AI服务的职责**：作为数据分析的智能引擎，专门负责：
+- 数据模式识别和异常检测
+- 趋势分析和预测建模
+- 可视化方案优化建议
+- 自动化报告生成
+
+**明确不包含**：
+- 用户对话交互功能
+- 自然语言查询接口
+- 实时问答系统
 
 ## 需求分析
 
@@ -13,28 +26,24 @@
    - 提供API密钥配置界面
    - 支持服务连接状态检测和错误处理
 
-2. **数据分析功能**
-   - 智能数据解读：自动生成数据洞察和摘要
+2. **自动化数据分析**
+   - 智能数据解读：自动生成数据洞察和摘要报告
    - 趋势预测：基于历史数据预测未来趋势
    - 异常检测：识别数据中的异常值和模式
    - 相关性分析：发现数据集之间的关联
 
-3. **可视化建议**
-   - 根据数据特性推荐合适的图表类型
+3. **可视化智能建议**
+   - 根据数据特性自动推荐最适合的图表类型
    - 提供图表配色和布局优化建议
-   - 生成图表标题和描述文案
+   - 自动生成图表标题和描述文案
+   - 基于数据特征优化图表参数
 
-4. **用户交互**
-   - 支持自然语言查询数据
-   - 提供对话式AI助手界面
-   - 允许用户反馈和调整AI生成的结果
+### 目标用户场景
 
-### 用户场景
-
-1. 数据分析师希望快速获取数据洞察，而不必手动分析每个数据集
-2. 业务用户希望通过自然语言提问了解数据趋势和异常
-3. 设计人员希望获取专业的可视化建议，提升图表质量
-4. 决策者希望获得AI辅助的数据解读和预测，支持决策制定
+1. **数据分析师**：获取自动化的初步数据分析报告，节省手动分析时间
+2. **业务用户**：查看AI生成的数据洞察报告，快速了解业务趋势
+3. **可视化设计师**：获取专业的图表优化建议，提升可视化质量
+4. **决策者**：基于AI分析报告做出数据驱动的决策
 
 ## 技术方案
 
@@ -46,31 +55,40 @@
    - 可选：百度文心一言、讯飞星火等国内大模型
 
 2. **前端技术**
-   - React Query：管理API请求状态
-   - Zustand：存储AI配置和会话状态
-   - React Markdown：渲染AI生成的富文本内容
+   - React Query：管理AI分析请求状态
+   - Zustand：存储AI配置和分析结果
+   - React Markdown：渲染AI生成的分析报告
 
-3. **安全考虑**
+3. **数据处理**
+   - 数据预处理：清洗和格式化数据用于AI分析
+   - 结果缓存：避免重复分析相同数据集
+   - 批量处理：支持多个数据集的批量分析
+
+4. **安全考虑**
    - 客户端加密存储API密钥
    - 请求代理服务（可选）：避免直接在前端暴露API密钥
+   - 数据脱敏：敏感数据在发送前进行处理
 
 ### 系统架构
 
 ```
 +------------------+    +------------------+    +------------------+
 |                  |    |                  |    |                  |
-|  前端应用        |    |  AI代理服务      |    |  AI服务提供商    |
+|  DataViz前端     |    |  AI代理服务      |    |  AI服务提供商    |
 |  (React)         |<-->|  (可选)         |<-->|  (OpenAI/通义千问)|
-|                  |    |                  |    |                  |
+|  - 数据可视化    |    |                  |    |                  |
+|  - 分析报告展示  |    |                  |    |                  |
 +------------------+    +------------------+    +------------------+
         ^                                              ^
         |                                              |
         v                                              v
 +------------------+                        +------------------+
 |                  |                        |                  |
-|  本地数据存储    |                        |  模型/提示模板   |
+|  分析结果存储    |                        |  分析提示模板    |
 |  (LocalStorage)  |                        |  (Prompt库)      |
-|                  |                        |                  |
+|  - AI配置        |                        |  - 数据洞察模板  |
+|  - 分析报告      |                        |  - 趋势分析模板  |
+|  - 建议缓存      |                        |  - 异常检测模板  |
 +------------------+                        +------------------+
 ```
 
@@ -111,26 +129,34 @@ interface AIAnalysisResult {
   timestamp: number;
   datasetId: string;
   analysisType: 'insight' | 'anomaly' | 'trend' | 'correlation' | 'suggestion';
+  title: string;         // 分析标题
   content: string;       // Markdown格式的分析内容
+  summary: string;       // 分析摘要
+  confidence: number;    // 分析置信度 (0-1)
   rawResponse?: any;     // 原始AI响应
   metadata?: Record<string, any>; // 额外元数据
 }
 
-// AI会话消息
-interface AIMessage {
+// 图表建议结果
+interface ChartSuggestion {
   id: string;
-  role: 'user' | 'assistant' | 'system';
-  content: string;
-  timestamp: number;
+  chartType: 'bar' | 'line' | 'pie' | 'scatter' | 'area';
+  title: string;
+  description: string;
+  reasoning: string;     // 推荐理由
+  confidence: number;    // 推荐置信度
+  colorScheme?: string[];
+  layoutOptions?: Record<string, any>;
 }
 
-// AI会话
-interface AIConversation {
+// 数据洞察结果
+interface DataInsight {
   id: string;
-  title: string;
-  messages: AIMessage[];
-  createdAt: number;
-  updatedAt: number;
+  type: 'trend' | 'pattern' | 'outlier' | 'correlation';
+  description: string;
+  significance: 'high' | 'medium' | 'low';
+  affectedColumns: string[];
+  value?: number | string;
 }
 ```
 
@@ -372,9 +398,33 @@ export const AIServiceConfig: React.FC = () => {
             onChange={(e) => setEditConfig({ ...editConfig, isActive: e.target.checked })}
             style={{ marginRight: '8px' }}
           />
-          启用AI功能
+          启用AI数据分析服务
         </label>
       </div>
+      
+      {editConfig.isActive && (
+        <div style={{ marginBottom: '15px', padding: '15px', border: `1px solid ${theme === 'dark' ? '#444' : '#ddd'}`, borderRadius: '4px' }}>
+          <h4 style={{ marginTop: 0, marginBottom: '10px' }}>AI功能配置</h4>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+            <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+              <input type="checkbox" defaultChecked style={{ marginRight: '8px' }} />
+              数据洞察分析
+            </label>
+            <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+              <input type="checkbox" defaultChecked style={{ marginRight: '8px' }} />
+              异常检测
+            </label>
+            <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+              <input type="checkbox" defaultChecked style={{ marginRight: '8px' }} />
+              趋势预测
+            </label>
+            <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+              <input type="checkbox" defaultChecked style={{ marginRight: '8px' }} />
+              图表建议
+            </label>
+          </div>
+        </div>
+      )}
       
       <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
         <button
@@ -468,21 +518,28 @@ export interface AIAnalysisResult {
   metadata?: Record<string, any>; // 额外元数据
 }
 
-// AI会话消息
-export interface AIMessage {
-  id: string;
-  role: 'user' | 'assistant' | 'system';
-  content: string;
-  timestamp: number;
+// AI分析请求接口
+export interface AIAnalysisRequest {
+  datasetId: string;
+  data: any[];
+  analysisType: 'insight' | 'anomaly' | 'trend' | 'correlation' | 'suggestion';
+  options?: {
+    columns?: string[];
+    timeColumn?: string;
+    targetColumn?: string;
+  };
 }
 
-// AI会话
-export interface AIConversation {
-  id: string;
-  title: string;
-  messages: AIMessage[];
-  createdAt: number;
-  updatedAt: number;
+// AI服务响应接口
+export interface AIServiceResponse {
+  success: boolean;
+  data?: AIAnalysisResult | ChartSuggestion | DataInsight[];
+  error?: string;
+  usage?: {
+    promptTokens: number;
+    completionTokens: number;
+    totalTokens: number;
+  };
 }
 ```
 
@@ -508,8 +565,9 @@ import {
   ChartType,
   AIServiceConfig,
   AIAnalysisResult,
-  AIConversation,
-  AIMessage
+  AIFeatureConfig,
+  ChartSuggestion,
+  DataInsight
 } from '../types';
 
 interface AppStore {
@@ -517,17 +575,22 @@ interface AppStore {
   
   // AI相关状态
   aiConfig: AIServiceConfig | null;
+  aiFeatureConfig: AIFeatureConfig;
   aiAnalysisResults: AIAnalysisResult[];
-  aiConversations: AIConversation[];
-  currentConversationId: string | null;
+  chartSuggestions: ChartSuggestion[];
+  dataInsights: DataInsight[];
+  isAnalyzing: boolean;
   
   // AI相关操作
   updateAIConfig: (config: AIServiceConfig) => void;
+  updateAIFeatureConfig: (config: AIFeatureConfig) => void;
   addAIAnalysisResult: (result: Omit<AIAnalysisResult, 'id' | 'timestamp'>) => void;
-  createAIConversation: (title: string) => string;
-  addMessageToConversation: (conversationId: string, content: string, role: 'user' | 'assistant' | 'system') => void;
-  setCurrentConversation: (conversationId: string | null) => void;
+  addChartSuggestion: (suggestion: ChartSuggestion) => void;
+  addDataInsights: (insights: DataInsight[]) => void;
+  setAnalyzing: (analyzing: boolean) => void;
   clearAIAnalysisResults: (datasetId?: string) => void;
+  clearChartSuggestions: () => void;
+  clearDataInsights: () => void;
 }
 
 const useAppStore = create<AppStore>(
@@ -537,13 +600,25 @@ const useAppStore = create<AppStore>(
       
       // AI相关状态
       aiConfig: null,
+      aiFeatureConfig: {
+        dataInsight: true,
+        anomalyDetection: true,
+        trendPrediction: true,
+        chartSuggestion: true
+      },
       aiAnalysisResults: [],
-      aiConversations: [],
-      currentConversationId: null,
+      chartSuggestions: [],
+      dataInsights: [],
+      isAnalyzing: false,
       
       // 更新AI配置
       updateAIConfig: (config) => {
         set({ aiConfig: config });
+      },
+      
+      // 更新AI功能配置
+      updateAIFeatureConfig: (config) => {
+        set({ aiFeatureConfig: config });
       },
       
       // 添加AI分析结果
@@ -559,55 +634,23 @@ const useAppStore = create<AppStore>(
         }));
       },
       
-      // 创建AI对话
-      createAIConversation: (title) => {
-        const id = uuidv4();
-        const now = Date.now();
-        
-        const newConversation: AIConversation = {
-          id,
-          title,
-          messages: [],
-          createdAt: now,
-          updatedAt: now
-        };
-        
+      // 添加图表建议
+      addChartSuggestion: (suggestion) => {
         set((state) => ({
-          aiConversations: [...state.aiConversations, newConversation],
-          currentConversationId: id
+          chartSuggestions: [...state.chartSuggestions, suggestion]
         }));
-        
-        return id;
       },
       
-      // 添加消息到对话
-      addMessageToConversation: (conversationId, content, role) => {
-        set((state) => {
-          const conversations = [...state.aiConversations];
-          const index = conversations.findIndex(c => c.id === conversationId);
-          
-          if (index === -1) return state;
-          
-          const conversation = { ...conversations[index] };
-          const newMessage: AIMessage = {
-            id: uuidv4(),
-            content,
-            role,
-            timestamp: Date.now()
-          };
-          
-          conversation.messages = [...conversation.messages, newMessage];
-          conversation.updatedAt = Date.now();
-          
-          conversations[index] = conversation;
-          
-          return { aiConversations: conversations };
-        });
+      // 添加数据洞察
+      addDataInsights: (insights) => {
+        set((state) => ({
+          dataInsights: [...state.dataInsights, ...insights]
+        }));
       },
       
-      // 设置当前对话
-      setCurrentConversation: (conversationId) => {
-        set({ currentConversationId: conversationId });
+      // 设置分析状态
+      setAnalyzing: (analyzing) => {
+        set({ isAnalyzing: analyzing });
       },
       
       // 清除AI分析结果
@@ -623,6 +666,16 @@ const useAppStore = create<AppStore>(
           
           return { aiAnalysisResults: [] };
         });
+      },
+      
+      // 清除图表建议
+      clearChartSuggestions: () => {
+        set({ chartSuggestions: [] });
+      },
+      
+      // 清除数据洞察
+      clearDataInsights: () => {
+        set({ dataInsights: [] });
       }
     }),
     {
@@ -632,8 +685,8 @@ const useAppStore = create<AppStore>(
         currentDashboardId: state.currentDashboardId,
         theme: state.theme,
         aiConfig: state.aiConfig,
-        aiConversations: state.aiConversations
-        // 不持久化分析结果，避免存储过大
+        aiFeatureConfig: state.aiFeatureConfig
+        // 不持久化分析结果和建议，避免存储过大
       })
     }
   )
@@ -836,37 +889,125 @@ class AIService {
     }
   }
   
-  // 对话式查询
-  async conversationalQuery(messages: { role: string; content: string }[]): Promise<string> {
+  // 分析数据相关性
+  async analyzeCorrelation(data: any[]): Promise<string> {
     if (!this.isConfigured()) {
       throw new Error('AI服务未配置');
     }
     
     try {
-      // 根据不同提供商实现对话查询
-      switch (this.config!.provider) {
-        case 'openai':
-          return await this.openAIConversation(messages);
-        case 'tongyi':
-          // 实现通义千问对话
-          return '通义千问回复';
-        case 'baidu':
-          // 实现百度文心一言对话
-          return '文心一言回复';
-        case 'xunfei':
-          // 实现讯飞星火对话
-          return '讯飞星火回复';
-        default:
-          throw new Error('不支持的AI服务提供商');
-      }
+      // 构建提示词
+      const prompt = `
+        分析以下数据中各变量之间的相关性。识别强相关、弱相关和负相关的变量对，
+        并解释这些相关性的可能原因和业务意义。以markdown格式输出。
+        
+        数据:
+        ${JSON.stringify(data, null, 2)}
+      `;
+      
+      // 调用AI服务
+      return await this.callAIService(prompt);
     } catch (error) {
-      console.error('对话查询失败:', error);
+      console.error('分析相关性失败:', error);
       throw error;
     }
   }
   
-  // OpenAI对话实现
-  private async openAIConversation(messages: { role: string; content: string }[]): Promise<string> {
+  // 批量分析数据
+  async batchAnalyze(requests: { type: string; data: any[]; options?: any }[]): Promise<AIAnalysisResult[]> {
+    if (!this.isConfigured()) {
+      throw new Error('AI服务未配置');
+    }
+    
+    try {
+      const results: AIAnalysisResult[] = [];
+      
+      for (const request of requests) {
+        let content: string;
+        
+        switch (request.type) {
+          case 'insight':
+            content = await this.generateDataInsight(request.data);
+            break;
+          case 'anomaly':
+            content = await this.detectAnomalies(request.data);
+            break;
+          case 'trend':
+            content = await this.predictTrend(request.data);
+            break;
+          case 'correlation':
+            content = await this.analyzeCorrelation(request.data);
+            break;
+          case 'suggestion':
+            content = await this.suggestChartType(request.data);
+            break;
+          default:
+            throw new Error(`不支持的分析类型: ${request.type}`);
+        }
+        
+        results.push({
+          id: `${Date.now()}-${Math.random()}`,
+          timestamp: Date.now(),
+          datasetId: request.options?.datasetId || 'unknown',
+          analysisType: request.type as any,
+          title: this.getAnalysisTitle(request.type),
+          content,
+          summary: this.extractSummary(content),
+          confidence: 0.8, // 默认置信度
+          metadata: request.options
+        });
+      }
+      
+      return results;
+    } catch (error) {
+      console.error('批量分析失败:', error);
+      throw error;
+    }
+  }
+  
+  // 获取分析标题
+  private getAnalysisTitle(type: string): string {
+    const titles = {
+      insight: '数据洞察分析',
+      anomaly: '异常检测报告',
+      trend: '趋势预测分析',
+      correlation: '相关性分析',
+      suggestion: '图表建议'
+    };
+    return titles[type as keyof typeof titles] || '数据分析报告';
+  }
+  
+  // 提取摘要
+  private extractSummary(content: string): string {
+    // 简单的摘要提取逻辑，取第一段或前100个字符
+    const lines = content.split('\n').filter(line => line.trim());
+    const firstParagraph = lines.find(line => !line.startsWith('#') && line.length > 20);
+    return firstParagraph ? firstParagraph.substring(0, 100) + '...' : '数据分析完成';
+  }
+  
+  // 调用AI服务的通用方法
+  private async callAIService(prompt: string): Promise<string> {
+    // 根据不同提供商实现API调用
+    switch (this.config!.provider) {
+        case 'openai':
+          return await this.callOpenAI(prompt);
+        case 'tongyi':
+          return await this.callTongyi(prompt);
+        case 'baidu':
+          return await this.callBaidu(prompt);
+        case 'xunfei':
+          return await this.callXunfei(prompt);
+        default:
+          throw new Error('不支持的AI服务提供商');
+      }
+    } catch (error) {
+      console.error('AI服务调用失败:', error);
+      throw error;
+    }
+  }
+  
+  // OpenAI API调用
+  private async callOpenAI(prompt: string): Promise<string> {
     const endpoint = this.config!.apiEndpoint || 'https://api.openai.com/v1';
     
     try {
@@ -878,7 +1019,10 @@ class AIService {
         },
         body: JSON.stringify({
           model: this.config!.modelName || 'gpt-3.5-turbo',
-          messages,
+          messages: [
+            { role: 'system', content: 'You are a professional data analyst. Provide clear, actionable insights in Chinese.' },
+            { role: 'user', content: prompt }
+          ],
           temperature: this.config!.temperature || 0.7,
           max_tokens: this.config!.maxTokens || 2000
         })
@@ -892,32 +1036,29 @@ class AIService {
       const data = await response.json();
       return data.choices[0].message.content;
     } catch (error) {
-      console.error('OpenAI对话失败:', error);
+      console.error('OpenAI API调用失败:', error);
       throw error;
     }
   }
   
-  // 通用AI服务调用
-  private async callAIService(prompt: string): Promise<string> {
-    // 根据不同提供商调用相应的API
-    switch (this.config!.provider) {
-      case 'openai':
-        return await this.openAIConversation([
-          { role: 'system', content: 'You are a helpful data analysis assistant.' },
-          { role: 'user', content: prompt }
-        ]);
-      case 'tongyi':
-        // 实现通义千问API调用
-        return '通义千问分析结果';
-      case 'baidu':
-        // 实现百度文心一言API调用
-        return '文心一言分析结果';
-      case 'xunfei':
-        // 实现讯飞星火API调用
-        return '讯飞星火分析结果';
-      default:
-        throw new Error('不支持的AI服务提供商');
-    }
+  // 通义千问API调用
+  private async callTongyi(prompt: string): Promise<string> {
+    // 实现通义千问API调用逻辑
+    // 这里是示例代码，实际实现需要根据通义千问API文档
+    return '通义千问分析结果：' + prompt.substring(0, 50) + '...';
+  }
+  
+  // 百度文心一言API调用
+  private async callBaidu(prompt: string): Promise<string> {
+    // 实现百度文心一言API调用逻辑
+    return '文心一言分析结果：' + prompt.substring(0, 50) + '...';
+  }
+  
+  // 讯飞星火API调用
+  private async callXunfei(prompt: string): Promise<string> {
+    // 实现讯飞星火API调用逻辑
+    return '讯飞星火分析结果：' + prompt.substring(0, 50) + '...';
+  }
   }
 }
 
@@ -1172,350 +1313,386 @@ export const AIAnalysis: React.FC<AIAnalysisProps> = ({ data, datasetId }) => {
 };
 ```
 
-### 6. 创建AI对话组件
+### 6. 创建数据分析报告组件
 
-创建 `src/components/AIChat.tsx` 组件：
+创建 `src/components/AIAnalysisReport.tsx` 组件：
 
 ```typescript
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAppStore } from '../store';
 import { aiService } from '../services/ai';
 import ReactMarkdown from 'react-markdown';
+import { AIAnalysisResult, ChartSuggestion, DataInsight } from '../types';
 
-export const AIChat: React.FC = () => {
+interface AIAnalysisReportProps {
+  datasetId: string;
+  data: any[];
+}
+
+export const AIAnalysisReport: React.FC<AIAnalysisReportProps> = ({ datasetId, data }) => {
   const { 
     aiConfig, 
-    aiConversations, 
-    currentConversationId, 
-    createAIConversation, 
-    addMessageToConversation,
-    setCurrentConversation,
+    aiFeatureConfig,
+    aiAnalysisResults,
+    chartSuggestions,
+    dataInsights,
+    isAnalyzing,
+    addAIAnalysisResult,
+    addChartSuggestion,
+    addDataInsights,
+    setAnalyzing,
     theme 
   } = useAppStore();
   
-  const [input, setInput] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [selectedAnalysisTypes, setSelectedAnalysisTypes] = useState<string[]>([]);
   
   // 检查AI服务是否已配置
   const isAIConfigured = aiConfig && aiConfig.apiKey && aiConfig.isActive;
   
   // 初始化AI服务
-  if (isAIConfigured && aiService.getConfig() !== aiConfig) {
-    aiService.setConfig(aiConfig);
-  }
+  useEffect(() => {
+    if (isAIConfigured && aiService.getConfig() !== aiConfig) {
+      aiService.setConfig(aiConfig);
+    }
+  }, [aiConfig, isAIConfigured]);
   
-  // 获取当前对话
-  const currentConversation = aiConversations.find(
-    conv => conv.id === currentConversationId
-  );
+  // 获取当前数据集的分析结果
+  const currentResults = aiAnalysisResults.filter(
+    result => result.datasetId === datasetId
+  ).sort((a, b) => b.timestamp - a.timestamp);
   
-  // 创建新对话
-  const handleNewConversation = () => {
-    createAIConversation(`对话 ${new Date().toLocaleString()}`);
+  // 获取可用的分析类型
+  const getAvailableAnalysisTypes = () => {
+    const types = [];
+    if (aiFeatureConfig.dataInsight) types.push({ key: 'insight', label: '数据洞察' });
+    if (aiFeatureConfig.anomalyDetection) types.push({ key: 'anomaly', label: '异常检测' });
+    if (aiFeatureConfig.trendPrediction) types.push({ key: 'trend', label: '趋势预测' });
+    if (aiFeatureConfig.chartSuggestion) types.push({ key: 'suggestion', label: '图表建议' });
+    return types;
   };
   
-  // 发送消息
-  const handleSendMessage = async () => {
-    if (!input.trim() || !currentConversationId || !isAIConfigured) return;
+  // 批量生成分析报告
+  const generateBatchAnalysis = async () => {
+    if (!isAIConfigured || selectedAnalysisTypes.length === 0) {
+      setError('请选择至少一种分析类型');
+      return;
+    }
     
-    // 添加用户消息
-    addMessageToConversation(currentConversationId, input, 'user');
-    setInput('');
-    setIsLoading(true);
+    setAnalyzing(true);
     setError(null);
     
     try {
-      // 准备对话历史
-      const messages = currentConversation?.messages.map(msg => ({
-        role: msg.role,
-        content: msg.content
-      })) || [];
+      const requests = selectedAnalysisTypes.map(type => ({
+        type,
+        data,
+        options: { datasetId }
+      }));
       
-      // 添加系统消息
-      if (messages.length === 0 || messages[0].role !== 'system') {
-        messages.unshift({
-          role: 'system',
-          content: '你是一个数据分析助手，可以帮助用户理解数据、提供分析建议和回答数据可视化相关问题。'
+      const results = await aiService.batchAnalyze(requests);
+      
+      // 添加分析结果到状态
+      results.forEach(result => {
+        addAIAnalysisResult({
+          datasetId: result.datasetId,
+          analysisType: result.analysisType,
+          title: result.title,
+          content: result.content,
+          summary: result.summary,
+          confidence: result.confidence,
+          metadata: result.metadata
         });
-      }
-      
-      // 添加用户最新消息
-      messages.push({
-        role: 'user',
-        content: input
       });
       
-      // 调用AI服务
-      const response = await aiService.conversationalQuery(messages);
-      
-      // 添加AI回复
-      addMessageToConversation(currentConversationId, response, 'assistant');
+      setSelectedAnalysisTypes([]);
     } catch (err) {
-      setError(`发送失败: ${err instanceof Error ? err.message : '未知错误'}`);
+      setError(`分析失败: ${err instanceof Error ? err.message : '未知错误'}`);
     } finally {
-      setIsLoading(false);
+      setAnalyzing(false);
     }
   };
   
-  // 滚动到最新消息
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [currentConversation?.messages]);
+  // 切换分析类型选择
+  const toggleAnalysisType = (type: string) => {
+    setSelectedAnalysisTypes(prev => 
+      prev.includes(type) 
+        ? prev.filter(t => t !== type)
+        : [...prev, type]
+    );
+  };
   
   return (
     <div style={{
-      display: 'flex',
-      flexDirection: 'column',
-      height: '100%',
+      padding: '20px',
       backgroundColor: theme === 'dark' ? '#121212' : '#ffffff',
-      color: theme === 'dark' ? '#fff' : '#333'
+      color: theme === 'dark' ? '#fff' : '#333',
+      borderRadius: '8px',
+      border: `1px solid ${theme === 'dark' ? '#333' : '#eee'}`
     }}>
       <div style={{
-        padding: '15px',
-        borderBottom: `1px solid ${theme === 'dark' ? '#333' : '#eee'}`,
+        marginBottom: '20px',
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center'
       }}>
-        <h2 style={{ margin: 0 }}>AI助手</h2>
-        <button
-          onClick={handleNewConversation}
-          disabled={!isAIConfigured}
-          style={{
-            padding: '8px 16px',
-            backgroundColor: theme === 'dark' ? '#333' : '#f0f0f0',
-            color: theme === 'dark' ? '#fff' : '#333',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: isAIConfigured ? 'pointer' : 'not-allowed',
-            opacity: isAIConfigured ? 1 : 0.7
-          }}
-        >
-          新对话
-        </button>
+        <h2 style={{ margin: 0 }}>AI数据分析报告</h2>
+        <div style={{
+          fontSize: '14px',
+          color: theme === 'dark' ? '#aaa' : '#666'
+        }}>
+          数据集: {datasetId}
+        </div>
       </div>
       
       {!isAIConfigured && (
         <div style={{
           padding: '20px',
           backgroundColor: theme === 'dark' ? '#1a1a1a' : '#f5f5f5',
-          margin: '20px',
           borderRadius: '8px',
-          textAlign: 'center'
+          textAlign: 'center',
+          marginBottom: '20px'
         }}>
           <p>AI服务未配置。请先在设置中配置AI服务。</p>
         </div>
       )}
       
+      {/* 分析类型选择 */}
       <div style={{
-        display: 'flex',
-        height: 'calc(100% - 70px)'
+        marginBottom: '20px',
+        padding: '15px',
+        backgroundColor: theme === 'dark' ? '#1a1a1a' : '#f5f5f5',
+        borderRadius: '8px'
       }}>
-        {/* 对话列表 */}
+        <h3 style={{ margin: '0 0 15px 0', fontSize: '16px' }}>选择分析类型</h3>
         <div style={{
-          width: '250px',
-          borderRight: `1px solid ${theme === 'dark' ? '#333' : '#eee'}`,
-          overflowY: 'auto',
-          backgroundColor: theme === 'dark' ? '#1a1a1a' : '#f5f5f5',
-          padding: '10px'
-        }}>
-          {aiConversations.length === 0 ? (
-            <div style={{
-              padding: '20px',
-              textAlign: 'center',
-              color: theme === 'dark' ? '#aaa' : '#666'
-            }}>
-              没有对话历史
-            </div>
-          ) : (
-            aiConversations.map(conv => (
-              <div
-                key={conv.id}
-                onClick={() => setCurrentConversation(conv.id)}
-                style={{
-                  padding: '10px',
-                  marginBottom: '5px',
-                  backgroundColor: conv.id === currentConversationId ?
-                    (theme === 'dark' ? '#333' : '#e0e0e0') :
-                    'transparent',
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                  whiteSpace: 'nowrap',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis'
-                }}
-              >
-                {conv.title}
-              </div>
-            ))
-          )}
-        </div>
-        
-        {/* 对话内容 */}
-        <div style={{
-          flex: 1,
           display: 'flex',
-          flexDirection: 'column',
-          height: '100%'
+          flexWrap: 'wrap',
+          gap: '10px'
         }}>
-          {/* 消息区域 */}
-          <div style={{
-            flex: 1,
-            overflowY: 'auto',
-            padding: '20px'
-          }}>
-            {!currentConversation ? (
-              <div style={{
-                height: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: theme === 'dark' ? '#aaa' : '#666'
-              }}>
-                {isAIConfigured ? '选择或创建一个对话' : '请先配置AI服务'}
-              </div>
-            ) : (
-              <>
-                {currentConversation.messages.length === 0 ? (
-                  <div style={{
-                    height: '100%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: theme === 'dark' ? '#aaa' : '#666'
-                  }}>
-                    开始新对话
-                  </div>
-                ) : (
-                  currentConversation.messages.map(msg => (
-                    msg.role !== 'system' && (
-                      <div
-                        key={msg.id}
-                        style={{
-                          marginBottom: '20px',
-                          display: 'flex',
-                          flexDirection: msg.role === 'user' ? 'row-reverse' : 'row'
-                        }}
-                      >
-                        <div style={{
-                          maxWidth: '70%',
-                          backgroundColor: msg.role === 'user' ?
-                            (theme === 'dark' ? '#0066cc' : '#007bff') :
-                            (theme === 'dark' ? '#2a2a2a' : '#f0f0f0'),
-                          color: msg.role === 'user' ? '#fff' : (theme === 'dark' ? '#fff' : '#333'),
-                          padding: '12px 16px',
-                          borderRadius: '8px',
-                          boxShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
-                        }}>
-                          {msg.role === 'assistant' ? (
-                            <ReactMarkdown>
-                              {msg.content}
-                            </ReactMarkdown>
-                          ) : (
-                            msg.content
-                          )}
-                        </div>
-                      </div>
-                    )
-                  ))
-                )}
-                <div ref={messagesEndRef} />
-              </>
-            )}
-          </div>
-          
-          {/* 错误消息 */}
-          {error && (
-            <div style={{
-              padding: '10px',
-              backgroundColor: theme === 'dark' ? '#4d1a1a' : '#f8d7da',
-              color: theme === 'dark' ? '#f44336' : '#721c24',
-              margin: '0 20px'
-            }}>
-              {error}
-            </div>
-          )}
-          
-          {/* 输入区域 */}
-          <div style={{
-            padding: '20px',
-            borderTop: `1px solid ${theme === 'dark' ? '#333' : '#eee'}`,
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px'
-          }}>
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-              placeholder="输入消息..."
-              disabled={!currentConversationId || !isAIConfigured || isLoading}
-              style={{
-                flex: 1,
-                padding: '12px',
-                borderRadius: '4px',
-                border: `1px solid ${theme === 'dark' ? '#444' : '#ddd'}`,
-                backgroundColor: theme === 'dark' ? '#333' : '#fff',
-                color: theme === 'dark' ? '#fff' : '#333'
-              }}
-            />
+          {getAvailableAnalysisTypes().map(({ key, label }) => (
             <button
-              onClick={handleSendMessage}
-              disabled={!input.trim() || !currentConversationId || !isAIConfigured || isLoading}
+              key={key}
+              onClick={() => toggleAnalysisType(key)}
+              disabled={!isAIConfigured || isAnalyzing}
               style={{
-                padding: '12px 20px',
-                backgroundColor: theme === 'dark' ? '#0066cc' : '#007bff',
-                color: '#fff',
+                padding: '8px 16px',
+                backgroundColor: selectedAnalysisTypes.includes(key)
+                  ? (theme === 'dark' ? '#0066cc' : '#007bff')
+                  : (theme === 'dark' ? '#333' : '#f0f0f0'),
+                color: selectedAnalysisTypes.includes(key)
+                  ? '#fff'
+                  : (theme === 'dark' ? '#fff' : '#333'),
                 border: 'none',
                 borderRadius: '4px',
-                cursor:opacity: input.trim() && currentConversationId && isAIConfigured && !isLoading ? 'pointer' : 'not-allowed'
+                cursor: (!isAIConfigured || isAnalyzing) ? 'not-allowed' : 'pointer',
+                opacity: (!isAIConfigured || isAnalyzing) ? 0.7 : 1
               }}
             >
-              {isLoading ? '发送中...' : '发送'}
+              {label}
             </button>
-          </div>
+          ))}
         </div>
+        
+        <button
+          onClick={generateBatchAnalysis}
+          disabled={!isAIConfigured || isAnalyzing || selectedAnalysisTypes.length === 0}
+          style={{
+            marginTop: '15px',
+            padding: '10px 20px',
+            backgroundColor: theme === 'dark' ? '#0066cc' : '#007bff',
+            color: '#fff',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: (!isAIConfigured || isAnalyzing || selectedAnalysisTypes.length === 0) ? 'not-allowed' : 'pointer',
+            opacity: (!isAIConfigured || isAnalyzing || selectedAnalysisTypes.length === 0) ? 0.7 : 1
+          }}
+        >
+          {isAnalyzing ? '分析中...' : '生成分析报告'}
+        </button>
+      </div>
+      
+      {/* 错误信息 */}
+      {error && (
+        <div style={{
+          padding: '15px',
+          backgroundColor: theme === 'dark' ? '#2d1b1b' : '#f8d7da',
+          color: theme === 'dark' ? '#ff6b6b' : '#721c24',
+          borderRadius: '8px',
+          marginBottom: '20px',
+          border: `1px solid ${theme === 'dark' ? '#5a2d2d' : '#f5c6cb'}`
+        }}>
+          {error}
+        </div>
+      )}
+      
+      {/* 分析结果列表 */}
+      <div>
+        <h3 style={{ margin: '0 0 15px 0', fontSize: '16px' }}>分析结果</h3>
+        {currentResults.length === 0 ? (
+          <div style={{
+            padding: '20px',
+            textAlign: 'center',
+            color: theme === 'dark' ? '#aaa' : '#666',
+            backgroundColor: theme === 'dark' ? '#1a1a1a' : '#f5f5f5',
+            borderRadius: '8px'
+          }}>
+            暂无分析结果
+          </div>
+        ) : (
+          currentResults.map(result => (
+            <div
+              key={`${result.datasetId}-${result.analysisType}-${result.timestamp}`}
+              style={{
+                marginBottom: '20px',
+                padding: '20px',
+                backgroundColor: theme === 'dark' ? '#1a1a1a' : '#f5f5f5',
+                borderRadius: '8px',
+                border: `1px solid ${theme === 'dark' ? '#333' : '#eee'}`
+              }}
+            >
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: '15px'
+              }}>
+                <div>
+                  <h4 style={{
+                    margin: '0 0 5px 0',
+                    fontSize: '18px',
+                    color: theme === 'dark' ? '#fff' : '#333'
+                  }}>
+                    {result.title}
+                  </h4>
+                  <div style={{
+                    fontSize: '14px',
+                    color: theme === 'dark' ? '#aaa' : '#666'
+                  }}>
+                    类型: {result.analysisType} | 时间: {new Date(result.timestamp).toLocaleString()}
+                  </div>
+                </div>
+                {result.confidence && (
+                  <div style={{
+                    padding: '4px 8px',
+                    backgroundColor: result.confidence > 0.8 
+                      ? (theme === 'dark' ? '#1a5d1a' : '#d4edda')
+                      : result.confidence > 0.6
+                      ? (theme === 'dark' ? '#5d4e1a' : '#fff3cd')
+                      : (theme === 'dark' ? '#5d1a1a' : '#f8d7da'),
+                    color: result.confidence > 0.8
+                      ? (theme === 'dark' ? '#4caf50' : '#155724')
+                      : result.confidence > 0.6
+                      ? (theme === 'dark' ? '#ff9800' : '#856404')
+                      : (theme === 'dark' ? '#f44336' : '#721c24'),
+                    borderRadius: '4px',
+                    fontSize: '12px',
+                    fontWeight: 'bold'
+                  }}>
+                    置信度: {Math.round(result.confidence * 100)}%
+                  </div>
+                )}
+              </div>
+              
+              {result.summary && (
+                <div style={{
+                  padding: '10px',
+                  backgroundColor: theme === 'dark' ? '#2a2a2a' : '#e9ecef',
+                  borderRadius: '4px',
+                  marginBottom: '15px',
+                  fontSize: '14px',
+                  fontStyle: 'italic'
+                }}>
+                  <strong>摘要:</strong> {result.summary}
+                </div>
+              )}
+              
+              <div style={{
+                fontSize: '14px',
+                lineHeight: '1.6'
+              }}>
+                <ReactMarkdown>{result.content}</ReactMarkdown>
+              </div>
+              
+              {result.metadata && Object.keys(result.metadata).length > 0 && (
+                <div style={{
+                  marginTop: '15px',
+                  padding: '10px',
+                  backgroundColor: theme === 'dark' ? '#2a2a2a' : '#e9ecef',
+                  borderRadius: '4px',
+                  fontSize: '12px'
+                }}>
+                  <strong>元数据:</strong>
+                  <pre style={{
+                    margin: '5px 0 0 0',
+                    whiteSpace: 'pre-wrap',
+                    wordBreak: 'break-word'
+                  }}>
+                    {JSON.stringify(result.metadata, null, 2)}
+                  </pre>
+                </div>
+              )}
+            </div>
+          ))
+        )}
       </div>
     </div>
   );
 };
-```
+### 7. 更新组件集成
 
-### 7. 更新DataImport组件
-
-修改 `src/components/DataImport.tsx`，添加AI分析功能：
+修改 `src/components/DataImport.tsx`，集成AI数据分析功能：
 
 ```typescript
-// 在DataImport组件中添加AI分析
+// 在DataImport组件中添加AI数据分析
+import { AIAnalysisReport } from './AIAnalysisReport';
 import { AIAnalysis } from './AIAnalysis';
 
 // 在组件内部添加状态
 const [showAIAnalysis, setShowAIAnalysis] = useState(false);
+const [showAIReport, setShowAIReport] = useState(false);
 
 // 在数据导入成功后添加按钮
 {data.length > 0 && (
   <div style={{ marginTop: '20px' }}>
-    <button
-      onClick={() => setShowAIAnalysis(!showAIAnalysis)}
-      style={{
-        padding: '8px 16px',
-        backgroundColor: theme === 'dark' ? '#0066cc' : '#007bff',
-        color: '#fff',
-        border: 'none',
-        borderRadius: '4px',
-        cursor: 'pointer'
-      }}
-    >
-      {showAIAnalysis ? '隐藏AI分析' : '显示AI分析'}
-    </button>
+    <div style={{ display: 'flex', gap: '10px' }}>
+      <button
+        onClick={() => setShowAIAnalysis(!showAIAnalysis)}
+        style={{
+          padding: '8px 16px',
+          backgroundColor: theme === 'dark' ? '#0066cc' : '#007bff',
+          color: '#fff',
+          border: 'none',
+          borderRadius: '4px',
+          cursor: 'pointer'
+        }}
+      >
+        {showAIAnalysis ? '隐藏快速分析' : '快速AI分析'}
+      </button>
+      
+      <button
+        onClick={() => setShowAIReport(!showAIReport)}
+        style={{
+          padding: '8px 16px',
+          backgroundColor: theme === 'dark' ? '#28a745' : '#28a745',
+          color: '#fff',
+          border: 'none',
+          borderRadius: '4px',
+          cursor: 'pointer'
+        }}
+      >
+        {showAIReport ? '隐藏分析报告' : '生成分析报告'}
+      </button>
+    </div>
     
     {showAIAnalysis && (
       <div style={{ marginTop: '20px' }}>
         <AIAnalysis data={data} datasetId={dataId} />
+      </div>
+    )}
+    
+    {showAIReport && (
+      <div style={{ marginTop: '20px' }}>
+        <AIAnalysisReport data={data} datasetId={dataId} />
       </div>
     )}
   </div>
@@ -1524,7 +1701,7 @@ const [showAIAnalysis, setShowAIAnalysis] = useState(false);
 
 ### 8. 更新Settings组件
 
-创建 `src/components/Settings.tsx` 组件，添加AI配置选项：
+修改 `src/components/Settings.tsx` 组件，添加AI功能配置选项：
 
 ```typescript
 import React, { useState } from 'react';
@@ -1532,7 +1709,7 @@ import { useAppStore } from '../store';
 import { AIServiceConfig } from '../components/AIServiceConfig';
 
 export const Settings: React.FC = () => {
-  const { theme, toggleTheme } = useAppStore();
+  const { theme, toggleTheme, aiFeatureConfig, updateAIFeatureConfig } = useAppStore();
   const [activeTab, setActiveTab] = useState<'general' | 'ai'>('general');
   
   return (
@@ -1576,7 +1753,7 @@ export const Settings: React.FC = () => {
             cursor: 'pointer'
           }}
         >
-          AI服务
+          AI功能
         </button>
       </div>
       
@@ -1598,8 +1775,63 @@ export const Settings: React.FC = () => {
       )}
       
       {activeTab === 'ai' && (
-        <AIServiceConfig />
+        <div>
+          <h3>AI服务配置</h3>
+          <AIServiceConfig />
+          
+          <h3 style={{ marginTop: '30px' }}>AI功能开关</h3>
+          <div style={{ marginTop: '15px' }}>
+            <div style={{ marginBottom: '15px' }}>
+              <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={aiFeatureConfig.dataInsight}
+                  onChange={(e) => updateAIFeatureConfig({ dataInsight: e.target.checked })}
+                  style={{ marginRight: '10px' }}
+                />
+                数据洞察分析
+              </label>
+            </div>
+            
+            <div style={{ marginBottom: '15px' }}>
+              <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={aiFeatureConfig.anomalyDetection}
+                  onChange={(e) => updateAIFeatureConfig({ anomalyDetection: e.target.checked })}
+                  style={{ marginRight: '10px' }}
+                />
+                异常检测
+              </label>
+            </div>
+            
+            <div style={{ marginBottom: '15px' }}>
+              <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={aiFeatureConfig.trendPrediction}
+                  onChange={(e) => updateAIFeatureConfig({ trendPrediction: e.target.checked })}
+                  style={{ marginRight: '10px' }}
+                />
+                趋势预测
+              </label>
+            </div>
+            
+            <div style={{ marginBottom: '15px' }}>
+              <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={aiFeatureConfig.chartSuggestion}
+                  onChange={(e) => updateAIFeatureConfig({ chartSuggestion: e.target.checked })}
+                  style={{ marginRight: '10px' }}
+                />
+                图表建议
+              </label>
+            </div>
+          </div>
+        </div>
       )}
+      
     </div>
   );
 };
@@ -1607,15 +1839,14 @@ export const Settings: React.FC = () => {
 
 ### 9. 更新Home组件
 
-修改 `src/pages/Home.tsx`，添加AI聊天和设置选项：
+修改 `src/pages/Home.tsx`，添加设置选项：
 
 ```typescript
 // 导入新组件
-import { AIChat } from '../components/AIChat';
 import { Settings } from '../components/Settings';
 
 // 在Home组件中添加新的标签页
-const [activeTab, setActiveTab] = useState<'dashboard' | 'create' | 'import' | 'ai' | 'settings'>('dashboard');
+const [activeTab, setActiveTab] = useState<'dashboard' | 'create' | 'import' | 'settings'>('dashboard');
 
 // 在导航栏中添加新选项
 <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
@@ -1668,22 +1899,6 @@ const [activeTab, setActiveTab] = useState<'dashboard' | 'create' | 'import' | '
   </button>
   
   <button
-    onClick={() => handleTabChange('ai')}
-    style={{
-      padding: '10px 20px',
-      backgroundColor: activeTab === 'ai' ? 
-        (theme === 'dark' ? '#0066cc' : '#007bff') : 
-        (theme === 'dark' ? '#333' : '#f0f0f0'),
-      color: activeTab === 'ai' ? '#fff' : (theme === 'dark' ? '#fff' : '#333'),
-      border: 'none',
-      borderRadius: '4px',
-      cursor: 'pointer'
-    }}
-  >
-    AI助手
-  </button>
-  
-  <button
     onClick={() => handleTabChange('settings')}
     style={{
       padding: '10px 20px',
@@ -1701,7 +1916,6 @@ const [activeTab, setActiveTab] = useState<'dashboard' | 'create' | 'import' | '
 </div>
 
 // 在内容区域添加新组件
-{activeTab === 'ai' && <AIChat />}
 {activeTab === 'settings' && <Settings />}
 ```
 

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAppStore } from '../store';
 import type { DataPoint } from '../types/chart';
 import type { ImportedDataset } from '../types';
-import './DataImport.css';
+import styles from './DataImport.module.css';
 
 interface DataImportProps {}
 
@@ -152,123 +152,93 @@ export const DataImport: React.FC<DataImportProps> = () => {
   };
 
   return (
-    <div 
-      className={`import-container ${theme}`}
-      style={{
-        padding: '20px',
-        backgroundColor: theme === 'dark' ? '#2a2a2a' : '#f8f8f8',
-        borderRadius: '8px',
-        marginBottom: '20px',
-        boxShadow: theme === 'dark' ? '0 4px 6px rgba(0, 0, 0, 0.3)' : '0 4px 6px rgba(0, 0, 0, 0.1)',
-        position: 'relative',
-      }}
-    >
+    <div className={`${styles.container} ${styles[theme]}`}>
       {/* Loading 遮罩 */}
       {isLoading && (
-        <div className="loading-overlay">
-          <div className="loading-spinner"></div>
+        <div className={styles.loadingOverlay}>
+          <div className={styles.loadingSpinner}></div>
         </div>
       )}
 
-      <h2 style={{ color: theme === 'dark' ? '#fff' : '#333', marginBottom: '15px' }}>
-        数据导入
-      </h2>
+      <div className={styles.header}>
+        <h1>数据导入</h1>
+        <p>上传您的数据文件，开始创建精美的图表</p>
+      </div>
       
       <div
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        className="drop-area"
-        style={{
-          border: `2px dashed ${isDragging ? '#646cff' : theme === 'dark' ? '#555' : '#ccc'}`,
-          backgroundColor: isDragging ? (theme === 'dark' ? '#333' : '#f0f0f0') : 'transparent',
-          marginBottom: '15px'
-        }}
+        className={`${styles.uploadArea} ${styles[theme]} ${isDragging ? styles.dragging : ''}`}
         onClick={handleButtonClick}
       >
-        <p style={{ color: theme === 'dark' ? '#ddd' : '#666' }}>
+        <div className={styles.uploadIcon}>📁</div>
+        <div className={styles.uploadText}>
           {fileName ? `已导入: ${fileName}` : '拖拽JSON文件到此处或点击上传'}
-        </p>
+        </div>
+        <div className={styles.uploadSubtext}>
+          支持 JSON 格式文件
+        </div>
         <input
           type="file"
           ref={fileInputRef}
           onChange={handleFileChange}
           accept=".json"
-          style={{ display: 'none' }}
+          className={styles.fileInput}
         />
       </div>
       
       {/* 数据集名称输入 */}
       {parsedData && (
-        <div style={{ marginBottom: '15px' }}>
-          <label 
-            htmlFor="dataset-name" 
-            style={{ 
-              display: 'block', 
-              marginBottom: '5px',
-              color: theme === 'dark' ? '#ddd' : '#555'
-            }}
-          >
-            数据集名称
-          </label>
-          <div style={{ display: 'flex', gap: '10px' }}>
-            <input
-              id="dataset-name"
-              type="text"
-              value={datasetName}
-              onChange={(e) => setDatasetName(e.target.value)}
-              style={{
-                flex: 1,
-                padding: '8px',
-                borderRadius: '4px',
-                border: `1px solid ${theme === 'dark' ? '#555' : '#ddd'}`,
-                backgroundColor: theme === 'dark' ? '#333' : '#fff',
-                color: theme === 'dark' ? '#fff' : '#333',
-              }}
-              placeholder="输入数据集名称"
-            />
-            <button
-              onClick={saveDataset}
-              style={{
-                padding: '8px 16px',
-                borderRadius: '4px',
-                border: 'none',
-                backgroundColor: '#646cff',
-                color: '#fff',
-                cursor: 'pointer',
-              }}
-            >
-              保存数据集
-            </button>
+        <div className={`${styles.formSection} ${styles[theme]}`}>
+          <div className={styles.formGroup}>
+            <label htmlFor="dataset-name" className={styles.label}>
+              数据集名称
+            </label>
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <input
+                id="dataset-name"
+                type="text"
+                value={datasetName}
+                onChange={(e) => setDatasetName(e.target.value)}
+                className={`${styles.input} ${styles[theme]}`}
+                placeholder="输入数据集名称"
+              />
+              <button
+                onClick={saveDataset}
+                className={`${styles.button} ${styles.primary}`}
+              >
+                保存数据集
+              </button>
+            </div>
           </div>
         </div>
       )}
       
       {/* 已导入数据集列表 */}
       {importedDatasets.length > 0 && (
-        <div style={{ marginBottom: '15px' }}>
-          <h3 style={{ color: theme === 'dark' ? '#ddd' : '#555', marginBottom: '10px' }}>
+        <div className={styles.previewSection}>
+          <h3 className={styles.previewTitle}>
             已导入的数据集
           </h3>
-          <div className={`dataset-list ${theme}`} style={{
-            backgroundColor: theme === 'dark' ? '#333' : '#f5f5f5',
-            padding: '10px',
-          }}>
+          <div className={`${styles.formSection} ${styles[theme]}`}>
             {importedDatasets.map(dataset => (
               <div 
                 key={dataset.id}
-                className="dataset-item"
                 style={{
                   display: 'flex',
                   justifyContent: 'space-between',
-                  alignItems: 'center'
+                  alignItems: 'center',
+                  padding: '10px 0',
+                  borderBottom: '1px solid',
+                  borderColor: theme === 'dark' ? '#444' : '#e0e0e0'
                 }}
               >
                 <div>
-                  <div className="dataset-name" style={{ color: theme === 'dark' ? '#fff' : '#333' }}>
+                  <div style={{ fontWeight: '500', marginBottom: '4px' }}>
                     {dataset.name}
                   </div>
-                  <div className="dataset-meta" style={{ color: theme === 'dark' ? '#aaa' : '#777' }}>
+                  <div style={{ fontSize: '0.9rem', opacity: '0.7' }}>
                     {dataset.data.length} 条数据 · {new Date(dataset.createdAt).toLocaleString()}
                   </div>
                 </div>
@@ -280,26 +250,25 @@ export const DataImport: React.FC<DataImportProps> = () => {
       
       {/* 错误提示 */}
       {error && (
-        <div className="error-message">
+        <div className={`${styles.message} ${styles.error} ${styles[theme]}`}>
           {error}
         </div>
       )}
 
       {/* 成功提示 */}
       {successMessage && (
-        <div className="success-message">
+        <div className={`${styles.message} ${styles.success} ${styles[theme]}`}>
           {successMessage}
         </div>
       )}
       
-      <div style={{ marginTop: '15px', fontSize: '14px', color: theme === 'dark' ? '#aaa' : '#777' }}>
-        <p>支持的数据格式:</p>
-        <pre style={{
-          backgroundColor: theme === 'dark' ? '#333' : '#f5f5f5',
-          padding: '10px',
-          borderRadius: '4px',
-          overflowX: 'auto',
-          color: theme === 'dark' ? '#ddd' : '#333',
+      <div className={`${styles.formSection} ${styles[theme]}`}>
+        <div className={styles.label}>支持的数据格式:</div>
+        <pre className={`${styles.input} ${styles[theme]}`} style={{
+          fontFamily: 'monospace',
+          fontSize: '0.9rem',
+          whiteSpace: 'pre-wrap',
+          overflowX: 'auto'
         }}>
           {`[
   { "id": "1", "name": "项目1", "value": 100 },

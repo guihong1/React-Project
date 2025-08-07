@@ -1,0 +1,515 @@
+/* DashboardManager 组件模块化样式 */
+
+/* 主题变量定义 */
+.light {
+  --bg-color: #f8f8f8;
+  --container-bg: #ffffff;
+  --text-color: #333333;
+  --text-secondary: #666666;
+  --text-muted: #888888;
+  --border-color: #dddddd;
+  --border-light: #eeeeee;
+  --input-bg: #ffffff;
+  --button-bg: #f0f0f0;
+  --button-text: #555555;
+  --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.dark {
+  --bg-color: #2a2a2a;
+  --container-bg: #333333;
+  --text-color: #ffffff;
+  --text-secondary: #aaaaaa;
+  --text-muted: #bbbbbb;
+  --border-color: #555555;
+  --border-light: #444444;
+  --input-bg: #444444;
+  --button-bg: #444444;
+  --button-text: #dddddd;
+  --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* 主容器 */
+.container {
+  padding: 0;
+  background-color: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  min-height: auto;
+}
+
+/* 头部区域 */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid var(--border-light);
+}
+
+.title {
+  color: var(--text-color);
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  padding: 4px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.closeButton:hover {
+  background-color: var(--button-bg);
+}
+
+/* 创建新仪表板区域 */
+.createSection {
+  margin-bottom: 30px;
+  padding: 24px;
+  background-color: var(--container-bg);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border-light);
+}
+
+.sectionTitle {
+  color: var(--text-color);
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.createForm {
+  display: flex;
+  gap: 10px;
+}
+
+.input {
+  flex: 1;
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background-color: var(--input-bg);
+  color: var(--text-color);
+  font-size: 14px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.input:focus {
+  outline: none;
+  border-color: #646cff;
+  box-shadow: 0 0 0 3px rgba(100, 108, 255, 0.1);
+}
+
+.input:focus {
+  outline: none;
+  border-color: #646cff;
+  box-shadow: 0 0 0 2px rgba(100, 108, 255, 0.1);
+}
+
+.input::placeholder {
+  color: var(--text-secondary);
+}
+
+/* 按钮样式 */
+.button {
+  padding: 12px 20px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.primaryButton {
+  background-color: #646cff;
+  color: #ffffff;
+}
+
+.primaryButton:hover {
+  background-color: #535bf2;
+}
+
+.successButton {
+  background-color: #4caf50;
+  color: #ffffff;
+}
+
+.successButton:hover {
+  background-color: #45a049;
+}
+
+.dangerButton {
+  background-color: #ff4d4f;
+  color: #ffffff;
+}
+
+.dangerButton:hover {
+  background-color: #ff3742;
+}
+
+.secondaryButton {
+  background-color: var(--button-bg);
+  color: var(--button-text);
+}
+
+.secondaryButton:hover {
+  background-color: var(--border-color);
+}
+
+.smallButton {
+  padding: 5px 10px;
+  font-size: 12px;
+}
+
+.tinyButton {
+  padding: 3px 8px;
+  font-size: 12px;
+}
+
+.miniButton {
+  padding: 2px 6px;
+  font-size: 10px;
+}
+
+/* 仪表板列表 */
+.dashboardList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 30px;
+}
+
+.dashboardCard {
+  padding: 24px;
+  background-color: var(--container-bg);
+  border-radius: 12px;
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow);
+  transition: all 0.3s ease;
+}
+
+.dashboardCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.dashboardCard.active {
+  border-color: #646cff;
+  box-shadow: 0 4px 20px rgba(100, 108, 255, 0.2);
+}
+
+.editForm {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.dashboardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.dashboardTitle {
+  color: var(--text-color);
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.actionButtons {
+  display: flex;
+  gap: 5px;
+}
+
+/* 图表管理区域 */
+.chartSection {
+  margin-top: 20px;
+  padding: 24px;
+  background-color: var(--container-bg);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border-light);
+}
+
+.chartHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.chartCount {
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+/* 下拉菜单 */
+.dropdown {
+  position: relative;
+}
+
+.dropdownButton {
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background-color: var(--input-bg);
+  color: var(--text-color);
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.dropdownButton:hover {
+  background-color: var(--button-bg);
+}
+
+.dropdownArrow {
+  font-size: 10px;
+}
+
+.dropdownMenu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 1000;
+  background-color: var(--input-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  min-width: 250px;
+  max-height: 300px;
+  overflow-y: auto;
+  margin-top: 8px;
+}
+
+.dropdownItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border-light);
+  font-size: 12px;
+}
+
+.dropdownItem:last-child {
+  border-bottom: none;
+}
+
+.dropdownItemText {
+  flex: 1;
+  cursor: pointer;
+  color: var(--text-color);
+  padding: 2px 0;
+  transition: background-color 0.2s;
+}
+
+.dropdownItemText:hover {
+  background-color: var(--button-bg);
+  border-radius: 2px;
+}
+
+.emptyMessage {
+  padding: 10px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  text-align: center;
+}
+
+/* 响应式设计 */
+@media (max-width: 1200px) {
+  .container {
+    padding: 0;
+  }
+  
+  .createSection,
+  .chartSection {
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+  
+  .dashboardCard {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .createSection,
+  .chartSection {
+    padding: 16px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+  }
+  
+  .dashboardCard {
+    padding: 16px;
+  }
+  
+  .button {
+    padding: 10px 16px;
+    font-size: 13px;
+  }
+  
+  .input {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+  
+  .createForm {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .actionButtons {
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .header {
+    flex-direction: column;
+    gap: 16px;
+    text-align: center;
+  }
+  
+  .title {
+    font-size: 1.3rem;
+  }
+}
+
+.emptyDropdownMessage {
+  padding: 10px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  text-align: center;
+}
+
+.emptyChartMessage {
+  color: var(--text-muted);
+  font-size: 14px;
+  text-align: center;
+  padding: 10px 0;
+}
+
+/* 图表列表 */
+.chartList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+.chartItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 5px;
+  border-bottom: 1px solid var(--border-light);
+  font-size: 14px;
+}
+
+.chartItem:last-child {
+  border-bottom: none;
+}
+
+.chartName {
+  color: var(--text-color);
+}
+
+.chartItemText {
+  color: var(--text-color);
+}
+
+.emptyCharts {
+  color: var(--text-muted);
+  font-size: 14px;
+  text-align: center;
+  padding: 20px 0;
+}
+
+.emptyDashboards {
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--text-secondary);
+  font-style: italic;
+  background-color: var(--container-bg);
+  border-radius: 12px;
+  border: 2px dashed var(--border-color);
+  margin-bottom: 30px;
+}
+
+.emptyDashboards::before {
+  content: "📊";
+  display: block;
+  font-size: 3rem;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .container {
+    padding: 15px;
+    margin: 10px;
+    max-width: none;
+  }
+  
+  .createForm {
+    flex-direction: column;
+  }
+  
+  .editForm {
+    flex-direction: column;
+  }
+  
+  .dashboardHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .actionButtons {
+    width: 100%;
+    justify-content: flex-end;
+  }
+  
+  .dropdownMenu {
+    right: auto;
+    left: 0;
+    min-width: 100%;
+  }
+}

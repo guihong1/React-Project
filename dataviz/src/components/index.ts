@@ -6,4 +6,8 @@ export { default as ChartEditor } from './ChartEditor';
 export { default as DashboardManager } from './DashboardManager';
 export { default as AIAnalysis } from './AIAnalysis';
 export { default as Layout } from './Layout';
+export { default as MainLayout } from './MainLayout';
+export { default as HomePage } from './HomePage';
 export { default as NotFound } from './NotFound';
+export { ChartTypeSelector } from './ChartTypeSelector';
+export { ChartCreationFlow } from './ChartCreationFlow';

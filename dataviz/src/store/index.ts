@@ -1,6 +1,8 @@
 import { create } from 'zustand';
+import { v4 as uuidv4 } from 'uuid';
 import type { ChartConfig } from '../types/chart.js';
-import type { AppState, Dashboard, Theme, ImportedDataset } from '../types';
+import type { AppState, Dashboard, Theme, ImportedDataset, AIModel } from '../types';
+import { aiService } from '../services/ai';
 
 // 示例数据
 const sampleData = [
@@ -56,29 +58,155 @@ interface AppStore extends AppState {
   getImportedDatasetById: (datasetId: string) => ImportedDataset | undefined;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
+  
+  // AI配置相关操作
+  setSelectedAIModel: (modelId: string) => void;
+  addAIModel: (model: Omit<AIModel, 'id' | 'isCustom' | 'isDefault'>) => void;
+  updateAIModel: (modelId: string, updates: Partial<AIModel>) => void;
+  deleteAIModel: (modelId: string) => void;
+  setDefaultAIModel: (modelId: string) => void;
+  testAIModelConnection: (modelId: string) => Promise<void>;
 }
+
+// 预设的AI模型
+const presetAIModels: AIModel[] = [
+  {
+    id: 'openai-gpt4',
+    name: 'GPT-4',
+    provider: 'OpenAI',
+    apiEndpoint: 'https://api.openai.com/v1/chat/completions',
+    apiKey: '',
+    apiVersion: 'v1',
+    isCustom: false,
+    isDefault: true
+  },
+  {
+    id: 'openai-gpt35',
+    name: 'GPT-3.5 Turbo',
+    provider: 'OpenAI',
+    apiEndpoint: 'https://api.openai.com/v1/chat/completions',
+    apiKey: '',
+    apiVersion: 'v1',
+    isCustom: false,
+    isDefault: false
+  },
+  {
+    id: 'baidu-ernie',
+    name: '文心一言',
+    provider: '百度',
+    apiEndpoint: 'https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/completions',
+    apiKey: '',
+    apiVersion: 'v1',
+    isCustom: false,
+    isDefault: false
+  },
+  {
+    id: 'ali-qwen',
+    name: '通义千问',
+    provider: '阿里云',
+    apiEndpoint: 'https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation',
+    apiKey: '',
+    apiVersion: 'v1',
+    isCustom: false,
+    isDefault: false
+  }
+];
+
+// 从localStorage加载AI模型配置
+const loadAIModels = () => {
+  try {
+    const savedModels = localStorage.getItem('aiModels');
+    const savedSelectedModelId = localStorage.getItem('selectedAIModelId');
+    
+    let models = savedModels ? JSON.parse(savedModels) : presetAIModels;
+    
+    // 确保至少有一个默认模型
+    if (!models.some(model => model.isDefault)) {
+      models[0].isDefault = true;
+    }
+    
+    return {
+      models,
+      selectedModelId: savedSelectedModelId || models.find(model => model.isDefault)?.id || models[0].id
+    };
+  } catch (e) {
+    console.error('Failed to load AI models:', e);
+    return {
+      models: presetAIModels,
+      selectedModelId: presetAIModels[0].id
+    };
+  }
+};
+
+// 从localStorage加载持久化数据
+const loadPersistedData = () => {
+  try {
+    const savedCurrentDashboard = localStorage.getItem('currentDashboard');
+    const savedCharts = localStorage.getItem('charts');
+    const savedImportedDatasets = localStorage.getItem('importedDatasets');
+    const savedTheme = localStorage.getItem('theme');
+    
+    return {
+      theme: (savedTheme as Theme) || 'light',
+      currentDashboard: savedCurrentDashboard ? JSON.parse(savedCurrentDashboard) : sampleDashboard,
+      charts: savedCharts ? JSON.parse(savedCharts) : sampleCharts,
+      importedDatasets: savedImportedDatasets ? JSON.parse(savedImportedDatasets) : [],
+    };
+  } catch (e) {
+    console.error('Failed to load persisted data:', e);
+    return {
+      theme: 'light' as Theme,
+      currentDashboard: sampleDashboard,
+      charts: sampleCharts,
+      importedDatasets: [],
+    };
+  }
+};
+
+const persistedData = loadPersistedData();
+const persistedAIConfig = loadAIModels();
 
 export const useAppStore = create<AppStore>((set, get) => ({
   // Initial state
-  theme: 'light',
-  currentDashboard: sampleDashboard,
-  charts: sampleCharts,
-  importedDatasets: [],
+  theme: persistedData.theme,
+  currentDashboard: persistedData.currentDashboard,
+  charts: persistedData.charts,
+  importedDatasets: persistedData.importedDatasets,
   isLoading: false,
   error: null,
+  
+  // AI配置相关状态
+  aiModels: persistedAIConfig.models,
+  selectedAIModelId: persistedAIConfig.selectedModelId,
+  isTestingConnection: false,
+  testResult: null,
 
   // Actions
-  setTheme: (theme) => set({ theme }),
+  setTheme: (theme) => {
+    localStorage.setItem('theme', theme);
+    set({ theme });
+  },
   
-  setCurrentDashboard: (dashboard) => set({ currentDashboard: dashboard }),
+  setCurrentDashboard: (dashboard) => {
+    if (dashboard) {
+      localStorage.setItem('currentDashboard', JSON.stringify(dashboard));
+    } else {
+      localStorage.removeItem('currentDashboard');
+    }
+    set({ currentDashboard: dashboard });
+  },
   
-  addChart: (chart) => set((state) => ({
-    charts: [...state.charts, chart],
-  })),
+  addChart: (chart) => set((state) => {
+    const newCharts = [...state.charts, chart];
+    localStorage.setItem('charts', JSON.stringify(newCharts));
+    return { charts: newCharts };
+  }),
   
-  removeChart: (chartId) => set((state) => ({
-    charts: state.charts.filter(chart => chart.id !== chartId),
-  })),
+  removeChart: (chartId) => set((state) => {
+    const newCharts = state.charts.filter(chart => chart.id !== chartId);
+    localStorage.setItem('charts', JSON.stringify(newCharts));
+    return { charts: newCharts };
+  }),
   
   updateChart: (chartId, updates) => set((state) => {
     // 更新charts数组中的图表
@@ -96,7 +224,11 @@ export const useAppStore = create<AppStore>((set, get) => ({
         ...updatedDashboard,
         charts: dashboardCharts
       };
+      localStorage.setItem('currentDashboard', JSON.stringify(updatedDashboard));
     }
+    
+    // 保存更新后的charts到localStorage
+    localStorage.setItem('charts', JSON.stringify(updatedCharts));
     
     return {
       charts: updatedCharts,
@@ -104,13 +236,17 @@ export const useAppStore = create<AppStore>((set, get) => ({
     };
   }),
   
-  addImportedDataset: (dataset) => set((state) => ({
-    importedDatasets: [...state.importedDatasets, dataset],
-  })),
+  addImportedDataset: (dataset) => set((state) => {
+    const newDatasets = [...state.importedDatasets, dataset];
+    localStorage.setItem('importedDatasets', JSON.stringify(newDatasets));
+    return { importedDatasets: newDatasets };
+  }),
   
-  removeImportedDataset: (datasetId) => set((state) => ({
-    importedDatasets: state.importedDatasets.filter(dataset => dataset.id !== datasetId),
-  })),
+  removeImportedDataset: (datasetId) => set((state) => {
+    const newDatasets = state.importedDatasets.filter(dataset => dataset.id !== datasetId);
+    localStorage.setItem('importedDatasets', JSON.stringify(newDatasets));
+    return { importedDatasets: newDatasets };
+  }),
   
   getImportedDatasetById: (datasetId) => {
     return get().importedDatasets.find(dataset => dataset.id === datasetId);
@@ -119,4 +255,113 @@ export const useAppStore = create<AppStore>((set, get) => ({
   setLoading: (loading) => set({ isLoading: loading }),
   
   setError: (error) => set({ error }),
+  
+  // AI配置相关操作
+  setSelectedAIModel: (modelId) => {
+    localStorage.setItem('selectedAIModelId', modelId);
+    set({ selectedAIModelId: modelId, testResult: null });
+  },
+  
+  addAIModel: (modelData) => set((state) => {
+    const newModel: AIModel = {
+      ...modelData,
+      id: uuidv4(),
+      isCustom: true,
+      isDefault: false
+    };
+    
+    const newModels = [...state.aiModels, newModel];
+    localStorage.setItem('aiModels', JSON.stringify(newModels));
+    
+    return { aiModels: newModels };
+  }),
+  
+  updateAIModel: (modelId, updates) => set((state) => {
+    const newModels = state.aiModels.map(model =>
+      model.id === modelId ? { ...model, ...updates } : model
+    );
+    
+    localStorage.setItem('aiModels', JSON.stringify(newModels));
+    
+    return { aiModels: newModels };
+  }),
+  
+  deleteAIModel: (modelId) => set((state) => {
+    // 只允许删除自定义模型
+    const modelToDelete = state.aiModels.find(model => model.id === modelId);
+    if (!modelToDelete || !modelToDelete.isCustom) {
+      return state;
+    }
+    
+    const newModels = state.aiModels.filter(model => model.id !== modelId);
+    
+    // 如果删除的是默认模型，则设置第一个模型为默认
+    if (modelToDelete.isDefault && newModels.length > 0) {
+      newModels[0].isDefault = true;
+    }
+    
+    // 如果删除的是当前选中的模型，则选择默认模型
+    let newSelectedModelId = state.selectedAIModelId;
+    if (modelId === state.selectedAIModelId) {
+      const defaultModel = newModels.find(model => model.isDefault);
+      newSelectedModelId = defaultModel ? defaultModel.id : (newModels.length > 0 ? newModels[0].id : '');
+      localStorage.setItem('selectedAIModelId', newSelectedModelId);
+    }
+    
+    localStorage.setItem('aiModels', JSON.stringify(newModels));
+    
+    return { 
+      aiModels: newModels,
+      selectedAIModelId: newSelectedModelId
+    };
+  }),
+  
+  setDefaultAIModel: (modelId) => set((state) => {
+    const newModels = state.aiModels.map(model => ({
+      ...model,
+      isDefault: model.id === modelId
+    }));
+    
+    localStorage.setItem('aiModels', JSON.stringify(newModels));
+    
+    return { aiModels: newModels };
+  }),
+  
+  testAIModelConnection: async (modelId) => {
+    const { aiModels } = get();
+    const model = aiModels.find(m => m.id === modelId);
+    
+    if (!model) {
+      set({ 
+        testResult: { 
+          success: false, 
+          message: '模型不存在' 
+        } 
+      });
+      return;
+    }
+    
+    set({ isTestingConnection: true, testResult: null });
+    
+    try {
+      // 使用AI服务进行真实的API连接测试
+      const result = await aiService.testConnection(model);
+      
+      set({ 
+        isTestingConnection: false,
+        testResult: { 
+          success: result.success, 
+          message: result.latency ? `${result.message} (延迟: ${result.latency}ms)` : result.message
+        }
+      });
+    } catch (error) {
+      set({ 
+        isTestingConnection: false,
+        testResult: { 
+          success: false, 
+          message: `连接失败: ${error instanceof Error ? error.message : String(error)}` 
+        }
+      });
+    }
+  },
 }));

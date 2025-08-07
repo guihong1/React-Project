@@ -1,0 +1,169 @@
+.container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.container.light {
+  background-color: #ffffff;
+  color: #333333;
+}
+
+.container.dark {
+  background-color: #1a1a1a;
+  color: #ffffff;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.title {
+  font-size: 28px;
+  font-weight: 600;
+  margin: 0 0 10px 0;
+}
+
+.subtitle {
+  font-size: 16px;
+  opacity: 0.7;
+  margin: 0;
+}
+
+.chartGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  margin-top: 20px;
+}
+
+.chartCard {
+  border-radius: 12px;
+  padding: 24px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  position: relative;
+  overflow: hidden;
+}
+
+.chartCard.light {
+  background-color: #f8f9fa;
+  border-color: #e9ecef;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.chartCard.dark {
+  background-color: #2d2d2d;
+  border-color: #404040;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.chartCard:hover {
+  transform: translateY(-4px);
+  border-color: #007bff;
+}
+
+.chartCard.light:hover {
+  box-shadow: 0 8px 24px rgba(0, 123, 255, 0.15);
+}
+
+.chartCard.dark:hover {
+  box-shadow: 0 8px 24px rgba(0, 123, 255, 0.25);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.icon {
+  font-size: 24px;
+  margin-right: 12px;
+}
+
+.chartName {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.previewContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 80px;
+  margin: 20px 0;
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(0, 123, 255, 0.1), rgba(0, 196, 159, 0.1));
+}
+
+.description {
+  font-size: 14px;
+  line-height: 1.5;
+  opacity: 0.8;
+  margin: 16px 0;
+  text-align: center;
+}
+
+.selectButton {
+  background: linear-gradient(135deg, #007bff, #0056b3);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: 500;
+  margin-top: 16px;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.3s ease;
+}
+
+.chartCard:hover .selectButton {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.selectButton:hover {
+  background: linear-gradient(135deg, #0056b3, #004085);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .container {
+    padding: 16px;
+  }
+  
+  .chartGrid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .title {
+    font-size: 24px;
+  }
+  
+  .chartCard {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 12px;
+  }
+  
+  .title {
+    font-size: 20px;
+  }
+  
+  .chartName {
+    font-size: 18px;
+  }
+  
+  .previewContainer {
+    height: 60px;
+  }
+}

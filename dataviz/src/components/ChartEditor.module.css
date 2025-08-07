@@ -1,0 +1,391 @@
+.container {
+  padding: 40px 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  min-height: calc(100vh - 80px);
+}
+
+.container.light {
+  color: #333333;
+}
+
+.container.dark {
+  color: #ffffff;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.header h1 {
+  font-size: 2.2rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.header p {
+  font-size: 1rem;
+  opacity: 0.8;
+  margin: 0;
+}
+
+.formSection {
+  margin-bottom: 30px;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.formSection.light {
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+}
+
+.formSection.dark {
+  background-color: #2d2d2d;
+  border: 1px solid #444;
+}
+
+.formGroup {
+  margin-bottom: 20px;
+}
+
+.label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #d9d9d9;
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.input.light {
+  background-color: #ffffff;
+  color: #333;
+  border-color: #d9d9d9;
+}
+
+.input.dark {
+  background-color: #3a3a3a;
+  color: #fff;
+  border-color: #555;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+}
+
+.select {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #d9d9d9;
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.select.light {
+  background-color: #ffffff;
+  color: #333;
+  border-color: #d9d9d9;
+}
+
+.select.dark {
+  background-color: #3a3a3a;
+  color: #fff;
+  border-color: #555;
+}
+
+.select:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+}
+
+.colorInput {
+  width: 100%;
+  padding: 4px;
+  border: 1px solid #d9d9d9;
+  border-radius: 6px;
+  height: 40px;
+  cursor: pointer;
+}
+
+.colorInput.light {
+  background-color: #ffffff;
+  border-color: #d9d9d9;
+}
+
+.colorInput.dark {
+  background-color: #3a3a3a;
+  border-color: #555;
+}
+
+.checkbox {
+  margin-right: 8px;
+  transform: scale(1.2);
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.sectionTitle {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 15px;
+  color: inherit;
+}
+
+.flexRow {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.flexCol {
+  flex: 1;
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  color: var(--text-color);
+  cursor: pointer;
+}
+
+.checkbox {
+  margin-right: 8px;
+  cursor: pointer;
+}
+
+.colorInput {
+  width: 100%;
+  padding: 4px;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+  background-color: var(--input-bg);
+  cursor: pointer;
+  height: 40px;
+}
+
+.buttonGroup {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.light {
+  --bg-color: #ffffff;
+  --text-color: #333333;
+  --border-color: #ddd;
+  --input-bg: #ffffff;
+  --section-bg: #f9f9f9;
+  --cancel-button-bg: #e0e0e0;
+  --cancel-button-color: #333;
+}
+
+.dark {
+  --bg-color: #1a1a1a;
+  --text-color: #ffffff;
+  --border-color: #555;
+  --input-bg: #333333;
+  --section-bg: #2a2a2a;
+  --cancel-button-bg: #555;
+  --cancel-button-color: #fff;
+}
+
+.cancelButton {
+  background-color: var(--cancel-button-bg);
+  color: var(--cancel-button-color);
+}
+
+.saveButton {
+  background-color: #646cff;
+  color: #fff;
+}
+
+.saveButton:hover {
+  background-color: #535bf2;
+}
+
+.previewSection {
+  margin-bottom: 30px;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.previewSection.light {
+  background-color: #f8f9fa;
+  border: 1px solid #e0e0e0;
+}
+
+.previewSection.dark {
+  background-color: #2a2a2a;
+  border: 1px solid #444;
+}
+
+.previewTitle {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 15px;
+}
+
+.chartPreview {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.chartPreview.light {
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+}
+
+.chartPreview.dark {
+  background-color: #1a1a1a;
+  border: 1px solid #333;
+}
+
+.actionButtons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid;
+}
+
+.actionButtons.light {
+  border-color: #e0e0e0;
+}
+
+.actionButtons.dark {
+  border-color: #444;
+}
+
+.button {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 100px;
+}
+
+.button.primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.button.primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.button.secondary.light {
+  background-color: #f8f9fa;
+  color: #666;
+  border: 1px solid #e0e0e0;
+}
+
+.button.secondary.dark {
+  background-color: #3a3a3a;
+  color: #ccc;
+  border: 1px solid #555;
+}
+
+.button.secondary:hover {
+  transform: translateY(-1px);
+}
+
+.button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.dimensionInputs {
+  display: flex;
+  gap: 15px;
+}
+
+.dimensionInput {
+  flex: 1;
+}
+
+.dimensionInput input {
+  width: 100%;
+}
+
+.styleGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.checkboxGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .container {
+    padding: 20px 15px;
+  }
+  
+  .flexRow {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .styleGrid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  
+  .checkboxGrid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  
+  .actionButtons {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .button {
+    width: 100%;
+    max-width: 200px;
+  }
+  
+  .dimensionInputs {
+    flex-direction: column;
+  }
+}
