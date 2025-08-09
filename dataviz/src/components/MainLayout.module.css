@@ -141,9 +141,13 @@
   margin-left: 240px;
   transition: all 0.3s ease;
   min-height: 100vh;
-  padding: 20px 0 20px 20px;
-  overflow-x: hidden;
+  padding: 20px;
+  overflow-x: visible;
   box-sizing: border-box;
+  width: calc(100% - 240px);
+  max-width: 100%;
+  display: flex;
+  justify-content: center;
 }
 
 /* withPanel样式已移除 */
@@ -156,7 +160,9 @@
   
   .mainContent {
     margin-left: 200px;
-    padding: 15px 0 15px 15px;
+    padding: 15px;
+    width: calc(100% - 200px);
+    max-width: calc(100% - 200px);
   }
   
   /* 图表切换面板响应式样式已移除 */
@@ -177,7 +183,49 @@
   
   .mainContent {
     margin-left: 60px;
-    padding: 10px 0 10px 10px;
+    padding: 10px;
+    width: calc(100% - 60px);
+    max-width: calc(100% - 60px);
+  }
+  
+  .navItem {
+    padding: 12px 10px;
+    justify-content: center;
+  }
+  
+  .navIcon {
+    margin: 0;
+  }
+  
+  .themeToggleContainer {
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .sidebar {
+    width: 50px;
+  }
+  
+  .logo h2 {
+    font-size: 0.8rem;
+  }
+  
+  .mainContent {
+    margin-left: 50px;
+    padding: 8px;
+    width: calc(100% - 50px);
+    max-width: calc(100% - 50px);
+  }
+  
+  .navItem {
+    padding: 10px 8px;
+  }
+  
+  .navIcon {
+    font-size: 1.2rem;
   }
   
   /* 图表切换面板移动端响应式样式已移除 */

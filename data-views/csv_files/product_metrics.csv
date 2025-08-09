@@ -1,0 +1,11 @@
+product_id,product_name,category,launch_date,units_sold,revenue,cost,profit,customer_rating,return_rate
+P001,Laptop Pro,Electronics,2023-01-10,1250,1250000.00,875000.00,375000.00,4.7,0.03
+P002,Smartphone X,Mobile,2023-01-15,2800,1400000.00,980000.00,420000.00,4.5,0.04
+P003,Tablet Air,Electronics,2023-01-20,950,475000.00,332500.00,142500.00,4.6,0.02
+P004,Smartwatch Elite,Wearables,2023-02-05,1500,375000.00,262500.00,112500.00,4.4,0.05
+P005,Wireless Headphones,Audio,2023-02-10,3200,320000.00,224000.00,96000.00,4.8,0.01
+P006,Gaming Console,Entertainment,2023-02-25,750,375000.00,262500.00,112500.00,4.9,0.02
+P007,Digital Camera,Photography,2023-03-05,620,310000.00,217000.00,93000.00,4.5,0.03
+P008,Wireless Speaker,Audio,2023-03-15,1850,185000.00,129500.00,55500.00,4.6,0.02
+P009,External Hard Drive,Storage,2023-03-25,1200,120000.00,84000.00,36000.00,4.3,0.04
+P010,Fitness Tracker,Wearables,2023-04-05,2100,147000.00,102900.00,44100.00,4.7,0.02

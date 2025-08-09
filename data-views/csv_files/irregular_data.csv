@@ -1,0 +1,13 @@
+id,name,value,category,subcategory,date,status,notes
+1,"Sample A, with comma",125.5,"Main, Category",Sub-A,2023-01-15,active,"This is a sample note with ""quoted"" text"
+2,Sample B,98.7,,Sub-B,2023-01-16,inactive,
+3,"Sample C",112.3,Main Category,,,pending,"Multiple
+Line
+Note"
+4,,103.8,Main Category,Sub-D,2023-01-18,active,
+5,Sample E,450.2,,,2023-01-19,,"Note with special chars: & < > "
+6,Sample F,95.4,Main Category,Sub-F,invalid-date,active,Regular note
+7,Sample G,108.6,,,2023-01-21,inactive,
+8,Sample H,15.3,Main Category,Sub-H,2023-01-22,,
+9,"Sample I, another comma",110.9,"Another, Category",Sub-I,2023-01-23,pending,"Final note with ""multiple"" special ""quotes"""
+10,,102.1,,,,,

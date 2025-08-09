@@ -163,6 +163,20 @@ export const ChartEditor: React.FC<ChartEditorProps> = ({
     }
   }, [chartId, charts]);
 
+  // 初始化时检查是否有选中的数据集ID
+  useEffect(() => {
+    // 只在初始化时执行一次，不在编辑模式下执行
+    if (!chartId) {
+      const selectedDatasetId = localStorage.getItem('selectedDatasetId');
+      if (selectedDatasetId) {
+        // 如果有选中的数据集ID，设置数据源为该数据集
+        setDataSource(selectedDatasetId);
+        // 清除选中的数据集ID，避免影响下次创建
+        localStorage.removeItem('selectedDatasetId');
+      }
+    }
+  }, [chartId]);
+
   // 当数据源改变时更新数据
   useEffect(() => {
     if (dataSource === 'sample') {

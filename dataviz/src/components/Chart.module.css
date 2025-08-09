@@ -32,3 +32,30 @@
   color: #666;
   border-color: #ccc;
 }
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .chartContainer {
+    margin-bottom: 15px;
+  }
+  
+  .chartTitle {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .chartContainer {
+    margin-bottom: 10px;
+  }
+  
+  .chartTitle {
+    font-size: 14px;
+    margin-bottom: 8px;
+  }
+  
+  .unsupportedType {
+    padding: 15px;
+    font-size: 13px;
+  }
+}

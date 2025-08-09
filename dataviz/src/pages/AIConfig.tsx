@@ -33,6 +33,13 @@ const AIConfig: React.FC = () => {
 
   // 处理选择模型
   const handleSelectModel = (modelId: string) => {
+    // 如果当前有未保存的API配置变更，提示用户
+    if (isApiEdited && selectedModel) {
+      if (window.confirm('您有未保存的API配置更改，是否保存？')) {
+        updateAIModel(selectedModel.id, tempApiChanges);
+      }
+    }
+    
     setSelectedAIModel(modelId);
     // 重置临时API更改状态
     setIsApiEdited(false);
@@ -55,6 +62,13 @@ const AIConfig: React.FC = () => {
 
   // 处理编辑模型
   const handleEditModel = (modelId: string) => {
+    // 如果当前有未保存的API配置变更，先保存
+    if (isApiEdited && selectedModel && selectedModel.id === modelId) {
+      updateAIModel(modelId, tempApiChanges);
+      setIsApiEdited(false);
+      setTempApiChanges({});
+    }
+    
     const model = aiModels.find(m => m.id === modelId);
     if (model) {
       setFormData({
@@ -77,6 +91,9 @@ const AIConfig: React.FC = () => {
     apiKey?: string;
     apiVersion?: string;
   }>({});
+  
+  // 控制API密钥显示/隐藏
+  const [showApiKey, setShowApiKey] = useState(false);
 
   // 处理API配置的变更
   const handleApiConfigChange = (field: string, value: string) => {
@@ -90,6 +107,18 @@ const AIConfig: React.FC = () => {
   // 保存API配置变更
   const handleSaveApiChanges = () => {
     if (selectedModel && isApiEdited) {
+      // 验证API端点URL格式（如果有更改）
+      if (tempApiChanges.apiEndpoint && !isValidUrl(tempApiChanges.apiEndpoint)) {
+        alert('请输入有效的API端点URL');
+        return;
+      }
+      
+      // 验证API密钥不为空（如果有更改）
+      if (tempApiChanges.apiKey !== undefined && !tempApiChanges.apiKey.trim()) {
+        alert('API密钥不能为空');
+        return;
+      }
+      
       updateAIModel(selectedModel.id, tempApiChanges);
       setIsApiEdited(false);
       setTempApiChanges({});
@@ -110,12 +139,45 @@ const AIConfig: React.FC = () => {
 
   // 处理测试连接
   const handleTestConnection = (modelId: string) => {
-    testAIModelConnection(modelId);
+    // 如果有未保存的API配置变更，先保存再测试
+    if (isApiEdited && selectedModel && selectedModel.id === modelId) {
+      updateAIModel(modelId, tempApiChanges);
+      setIsApiEdited(false);
+      setTempApiChanges({});
+      // 短暂延迟后测试连接，确保更新已应用
+      setTimeout(() => {
+        testAIModelConnection(modelId);
+      }, 100);
+    } else {
+      testAIModelConnection(modelId);
+    }
+  };
+
+  // 验证URL格式
+  const isValidUrl = (url: string): boolean => {
+    try {
+      new URL(url);
+      return true;
+    } catch (e) {
+      return false;
+    }
   };
 
   // 处理表单提交
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // 验证API端点URL格式
+    if (!isValidUrl(formData.apiEndpoint)) {
+      alert('请输入有效的API端点URL');
+      return;
+    }
+    
+    // 验证必填字段
+    if (!formData.name.trim() || !formData.provider.trim() || !formData.apiKey.trim()) {
+      alert('请填写所有必填字段');
+      return;
+    }
     
     if (isEditingModel && editingModelId) {
       updateAIModel(editingModelId, formData);
@@ -130,6 +192,15 @@ const AIConfig: React.FC = () => {
 
   // 处理取消
   const handleCancel = () => {
+    // 如果是编辑模式且有未保存的API配置变更，提示用户
+    if (isEditingModel && isApiEdited && selectedModel) {
+      if (window.confirm('您有未保存的API配置更改，是否保存？')) {
+        updateAIModel(selectedModel.id, tempApiChanges);
+      }
+      setIsApiEdited(false);
+      setTempApiChanges({});
+    }
+    
     setIsAddingModel(false);
     setIsEditingModel(false);
     setEditingModelId(null);
@@ -201,13 +272,22 @@ const AIConfig: React.FC = () => {
                 </div>
                 <div className={styles.formGroup}>
                   <label htmlFor="apiKey">API密钥</label>
-                  <input 
-                    type="password" 
-                    id="apiKey" 
-                    value={formData.apiKey} 
-                    onChange={(e) => setFormData({...formData, apiKey: e.target.value})}
-                    required 
-                  />
+                  <div className={styles.passwordInputContainer}>
+                    <input 
+                      type={showApiKey ? "text" : "password"} 
+                      id="apiKey" 
+                      value={formData.apiKey} 
+                      onChange={(e) => setFormData({...formData, apiKey: e.target.value})}
+                      required 
+                    />
+                    <button 
+                      type="button"
+                      className={styles.togglePasswordButton}
+                      onClick={() => setShowApiKey(!showApiKey)}
+                    >
+                      {showApiKey ? "隐藏" : "显示"}
+                    </button>
+                  </div>
                 </div>
                 <div className={styles.formGroup}>
                   <label htmlFor="apiVersion">API版本 (可选)</label>
@@ -254,15 +334,24 @@ const AIConfig: React.FC = () => {
                   <div className={styles.detailItem}>
                     <label>API密钥:</label>
                     <div className={styles.apiKeyContainer}>
-                      <input 
-                        type="password" 
-                        className={styles.apiKeyInput}
-                        value={tempApiChanges.apiKey !== undefined ? tempApiChanges.apiKey : selectedModel.apiKey} 
-                        onChange={(e) => {
-                          handleApiConfigChange('apiKey', e.target.value);
-                        }}
-                        placeholder="输入API密钥"
-                      />
+                      <div className={styles.passwordInputContainer}>
+                        <input 
+                          type={showApiKey ? "text" : "password"} 
+                          className={styles.apiKeyInput}
+                          value={tempApiChanges.apiKey !== undefined ? tempApiChanges.apiKey : selectedModel.apiKey} 
+                          onChange={(e) => {
+                            handleApiConfigChange('apiKey', e.target.value);
+                          }}
+                          placeholder="输入API密钥"
+                        />
+                        <button 
+                          type="button"
+                          className={styles.togglePasswordButton}
+                          onClick={() => setShowApiKey(!showApiKey)}
+                        >
+                          {showApiKey ? "隐藏" : "显示"}
+                        </button>
+                      </div>
                     </div>
                   </div>
                   <div className={styles.detailItem}>

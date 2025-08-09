@@ -1,0 +1,11 @@
+user_id,username,signup_date,last_login,total_sessions,avg_session_time,total_purchases,total_spend,device_type,country
+1001,john_doe,2023-01-05,2023-05-10,45,18.5,12,1250.75,Mobile,USA
+1002,jane_smith,2023-01-12,2023-05-11,38,22.3,8,876.50,Desktop,Canada
+1003,robert_johnson,2023-01-18,2023-05-09,52,15.7,15,1876.25,Tablet,UK
+1004,emily_wilson,2023-01-25,2023-05-12,29,25.1,6,650.00,Mobile,Australia
+1005,michael_brown,2023-02-01,2023-05-08,41,19.8,10,1125.50,Desktop,Germany
+1006,sarah_davis,2023-02-08,2023-05-11,33,21.2,7,780.25,Mobile,France
+1007,david_miller,2023-02-15,2023-05-10,47,17.6,14,1560.75,Desktop,Spain
+1008,lisa_taylor,2023-02-22,2023-05-09,36,20.4,9,950.00,Tablet,Italy
+1009,james_anderson,2023-03-01,2023-05-12,42,18.9,11,1320.50,Mobile,Japan
+1010,jennifer_thomas,2023-03-08,2023-05-08,31,23.7,5,580.25,Desktop,Brazil

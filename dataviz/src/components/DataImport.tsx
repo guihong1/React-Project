@@ -3,11 +3,17 @@ import { useNavigate } from 'react-router-dom';
 import { useAppStore } from '../store';
 import type { DataPoint } from '../types/chart';
 import type { ImportedDataset } from '../types';
+import { parseDataFile } from '../utils/fileParser';
+import Chart from './Chart';
 import styles from './DataImport.module.css';
 
-interface DataImportProps {}
+interface DataImportProps {
+  onImportSuccess?: () => void;
+}
 
-export const DataImport: React.FC<DataImportProps> = () => {
+type FileFormat = 'json' | 'csv' | 'excel' | 'auto';
+
+export const DataImport: React.FC<DataImportProps> = ({ onImportSuccess }) => {
   const { theme, setError, setLoading, isLoading, error, importedDatasets, addImportedDataset } = useAppStore();
   const navigate = useNavigate();
   const [isDragging, setIsDragging] = useState(false);
@@ -15,7 +21,12 @@ export const DataImport: React.FC<DataImportProps> = () => {
   const [datasetName, setDatasetName] = useState<string>('');
   const [parsedData, setParsedData] = useState<DataPoint[] | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [selectedFormat, setSelectedFormat] = useState<FileFormat>('auto');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // 预览数据集相关状态
+  const [previewDataset, setPreviewDataset] = useState<ImportedDataset | null>(null);
+  const [showPreview, setShowPreview] = useState(false);
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -42,31 +53,8 @@ export const DataImport: React.FC<DataImportProps> = () => {
     setLoading(true);
     
     try {
-      // 模拟网络延迟，实际项目中可以删除这行
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      const text = await file.text();
-      const data = JSON.parse(text);
-      
-      // 验证数据格式
-      if (!Array.isArray(data)) {
-        throw new Error('导入的数据必须是数组格式');
-      }
-      
-      // 验证数据结构
-      const validData = data.filter((item): item is DataPoint => {
-        return (
-          typeof item === 'object' &&
-          item !== null &&
-          typeof item.id === 'string' &&
-          typeof item.name === 'string' &&
-          typeof item.value === 'number'
-        );
-      });
-      
-      if (validData.length === 0) {
-        throw new Error('导入的数据格式不正确，请确保包含id、name和value字段');
-      }
+      // 根据用户选择的格式解析文件数据
+      const validData = await parseDataFile(file, selectedFormat);
       
       // 更新文件名显示
       setFileName(file.name);
@@ -112,12 +100,19 @@ export const DataImport: React.FC<DataImportProps> = () => {
     localStorage.setItem('importedData', JSON.stringify(parsedData));
     
     // 显示成功消息
-     setSuccessMessage(`成功保存数据集 "${datasetName}"`);
+    setSuccessMessage(`成功保存数据集 "${datasetName}"`);
     
-     // 2秒后导航到创建图表页面
-     setTimeout(() => {
-       navigate('/create');
-     }, 2000);
+    // 如果提供了导入成功回调，则调用它
+    if (onImportSuccess) {
+      setTimeout(() => {
+        onImportSuccess();
+      }, 2000);
+    } else {
+      // 否则2秒后导航到创建图表页面
+      setTimeout(() => {
+        navigate('/create');
+      }, 2000);
+    }
   };
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
@@ -126,11 +121,18 @@ export const DataImport: React.FC<DataImportProps> = () => {
     
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       const file = e.dataTransfer.files[0];
-      if (file.type === 'application/json') {
+      const fileName = file.name.toLowerCase();
+      
+      // 根据选择的格式或文件扩展名验证文件
+      if (selectedFormat !== 'auto') {
+        // 如果用户指定了格式，直接处理文件
+        processFile(file);
+      } else if (fileName.endsWith('.json') || fileName.endsWith('.csv') || 
+                 fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
+        // 自动检测模式下，验证文件扩展名
         processFile(file);
       } else {
-        setError('请上传JSON格式的文件');
-        alert('请上传JSON格式的文件');
+        setError('请上传支持的文件格式（JSON、CSV、Excel）');
       }
     }
   };
@@ -138,17 +140,46 @@ export const DataImport: React.FC<DataImportProps> = () => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
-      if (file.type === 'application/json') {
+      const fileName = file.name.toLowerCase();
+      
+      // 根据选择的格式或文件扩展名验证文件
+      if (selectedFormat !== 'auto') {
+        // 如果用户指定了格式，直接处理文件
+        processFile(file);
+      } else if (fileName.endsWith('.json') || fileName.endsWith('.csv') || 
+                 fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
+        // 自动检测模式下，验证文件扩展名
         processFile(file);
       } else {
-        setError('请上传JSON格式的文件');
-        alert('请上传JSON格式的文件');
+        setError('请上传支持的文件格式（JSON、CSV、Excel）');
       }
     }
   };
 
   const handleButtonClick = () => {
     fileInputRef.current?.click();
+  };
+  
+  // 处理预览数据集
+  const handlePreviewDataset = (dataset: ImportedDataset) => {
+    setPreviewDataset(dataset);
+    setShowPreview(true);
+  };
+  
+  // 处理创建图表
+  const handleCreateChart = (dataset: ImportedDataset) => {
+    // 将选中的数据集保存到localStorage（保持向后兼容）
+    localStorage.setItem('importedData', JSON.stringify(dataset.data));
+    // 保存当前选中的数据集ID，以便在图表创建页面使用
+    localStorage.setItem('selectedDatasetId', dataset.id);
+    // 导航到创建图表页面
+    navigate('/create');
+  };
+  
+  // 关闭预览
+  const handleClosePreview = () => {
+    setShowPreview(false);
+    setPreviewDataset(null);
   };
 
   return (
@@ -159,122 +190,304 @@ export const DataImport: React.FC<DataImportProps> = () => {
           <div className={styles.loadingSpinner}></div>
         </div>
       )}
+      
+      {/* 数据集预览模态框 */}
+      {showPreview && previewDataset && (
+        <div className={styles.previewModal}>
+          <div className={`${styles.previewModalContent} ${styles[theme]}`}>
+            <div className={styles.previewModalHeader}>
+              <h3>{previewDataset.name}</h3>
+              <button 
+                className={styles.closeButton}
+                onClick={handleClosePreview}
+              >
+                ×
+              </button>
+            </div>
+            <div className={styles.previewModalBody}>
+              {/* 数据表格预览 */}
+              <div className={styles.dataTableContainer}>
+                <table className={`${styles.dataTable} ${styles[theme]}`}>
+                  <thead>
+                    <tr>
+                      {previewDataset.data[0] && Object.keys(previewDataset.data[0]).map(key => (
+                        <th key={key} className={styles.tableHeader}>{key}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {previewDataset.data.slice(0, 10).map((item, index) => (
+                      <tr key={index}>
+                        {Object.values(item).map((value, i) => (
+                          <td key={i} className={styles.tableCell}>{String(value)}</td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                {previewDataset.data.length > 10 && (
+                  <div className={styles.moreDataHint}>显示前10条数据，共{previewDataset.data.length}条</div>
+                )}
+              </div>
+              
+              {/* 图表预览 */}
+              <div className={styles.chartPreview}>
+                <h4>图表预览</h4>
+                <Chart 
+                  config={{
+                    id: 'preview-chart',
+                    title: previewDataset.name,
+                    type: 'bar',
+                    data: previewDataset.data.slice(0, 10),
+                    width: 500,
+                    height: 300
+                  }}
+                />
+              </div>
+              
+              <div className={styles.previewActions}>
+                <button 
+                  className={`${styles.button} ${styles.primary}`}
+                  onClick={() => {
+                    handleClosePreview();
+                    // 确保使用当前预览的数据集创建图表
+                    handleCreateChart(previewDataset);
+                  }}
+                >
+                  使用此数据集创建图表
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className={styles.header}>
         <h1>数据导入</h1>
         <p>上传您的数据文件，开始创建精美的图表</p>
       </div>
       
-      <div
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
-        className={`${styles.uploadArea} ${styles[theme]} ${isDragging ? styles.dragging : ''}`}
-        onClick={handleButtonClick}
-      >
-        <div className={styles.uploadIcon}>📁</div>
-        <div className={styles.uploadText}>
-          {fileName ? `已导入: ${fileName}` : '拖拽JSON文件到此处或点击上传'}
-        </div>
-        <div className={styles.uploadSubtext}>
-          支持 JSON 格式文件
-        </div>
-        <input
-          type="file"
-          ref={fileInputRef}
-          onChange={handleFileChange}
-          accept=".json"
-          className={styles.fileInput}
-        />
-      </div>
-      
-      {/* 数据集名称输入 */}
-      {parsedData && (
-        <div className={`${styles.formSection} ${styles[theme]}`}>
-          <div className={styles.formGroup}>
-            <label htmlFor="dataset-name" className={styles.label}>
-              数据集名称
-            </label>
-            <div style={{ display: 'flex', gap: '10px' }}>
-              <input
-                id="dataset-name"
-                type="text"
-                value={datasetName}
-                onChange={(e) => setDatasetName(e.target.value)}
-                className={`${styles.input} ${styles[theme]}`}
-                placeholder="输入数据集名称"
-              />
-              <button
-                onClick={saveDataset}
-                className={`${styles.button} ${styles.primary}`}
-              >
-                保存数据集
-              </button>
+      {/* 主内容区域 */}
+      <div className={styles.mainContent}>
+        {/* 左侧：上传区域 */}
+        <div className={styles.uploadSection}>
+          <div className={`${styles.card} ${styles[theme]}`}>
+            <h2 className={styles.cardTitle}>选择文件格式</h2>
+            <div className={styles.formatRadioGroup}>
+              <label className={`${styles.formatOption} ${selectedFormat === 'auto' ? styles.selected : ''}`}>
+                <input
+                  type="radio"
+                  name="fileFormat"
+                  value="auto"
+                  checked={selectedFormat === 'auto'}
+                  onChange={() => setSelectedFormat('auto')}
+                />
+                <span>自动检测</span>
+              </label>
+              <label className={`${styles.formatOption} ${selectedFormat === 'json' ? styles.selected : ''}`}>
+                <input
+                  type="radio"
+                  name="fileFormat"
+                  value="json"
+                  checked={selectedFormat === 'json'}
+                  onChange={() => setSelectedFormat('json')}
+                />
+                <span>JSON</span>
+              </label>
+              <label className={`${styles.formatOption} ${selectedFormat === 'csv' ? styles.selected : ''}`}>
+                <input
+                  type="radio"
+                  name="fileFormat"
+                  value="csv"
+                  checked={selectedFormat === 'csv'}
+                  onChange={() => setSelectedFormat('csv')}
+                />
+                <span>CSV</span>
+              </label>
+              <label className={`${styles.formatOption} ${selectedFormat === 'excel' ? styles.selected : ''}`}>
+                <input
+                  type="radio"
+                  name="fileFormat"
+                  value="excel"
+                  checked={selectedFormat === 'excel'}
+                  onChange={() => setSelectedFormat('excel')}
+                />
+                <span>Excel</span>
+              </label>
             </div>
+            <p className={styles.formatHelp}>
+              {selectedFormat === 'auto' && '系统将自动根据文件扩展名检测格式'}
+              {selectedFormat === 'json' && 'JSON格式适用于结构化数据，支持嵌套属性'}
+              {selectedFormat === 'csv' && 'CSV格式适用于表格数据，每行代表一条记录'}
+              {selectedFormat === 'excel' && 'Excel格式支持.xlsx和.xls文件，将使用第一个工作表'}
+            </p>
           </div>
-        </div>
-      )}
-      
-      {/* 已导入数据集列表 */}
-      {importedDatasets.length > 0 && (
-        <div className={styles.previewSection}>
-          <h3 className={styles.previewTitle}>
-            已导入的数据集
-          </h3>
-          <div className={`${styles.formSection} ${styles[theme]}`}>
-            {importedDatasets.map(dataset => (
-              <div 
-                key={dataset.id}
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  padding: '10px 0',
-                  borderBottom: '1px solid',
-                  borderColor: theme === 'dark' ? '#444' : '#e0e0e0'
-                }}
-              >
-                <div>
-                  <div style={{ fontWeight: '500', marginBottom: '4px' }}>
-                    {dataset.name}
-                  </div>
-                  <div style={{ fontSize: '0.9rem', opacity: '0.7' }}>
-                    {dataset.data.length} 条数据 · {new Date(dataset.createdAt).toLocaleString()}
-                  </div>
+          
+          <div
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            className={`${styles.uploadArea} ${styles[theme]} ${isDragging ? styles.dragging : ''}`}
+            onClick={handleButtonClick}
+          >
+            <div className={styles.uploadIcon}>📁</div>
+            <div className={styles.uploadText}>
+              {fileName ? `已导入: ${fileName}` : '拖拽文件到此处或点击上传'}
+            </div>
+            <div className={styles.uploadSubtext}>
+              支持 JSON、CSV、Excel 格式文件
+            </div>
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              accept=".json,.csv,.xlsx,.xls"
+              className={styles.fileInput}
+            />
+          </div>
+          
+          {/* 数据集名称输入 */}
+          {parsedData && (
+            <div className={`${styles.card} ${styles[theme]}`}>
+              <h2 className={styles.cardTitle}>数据集信息</h2>
+              <div className={styles.formGroup}>
+                <label htmlFor="dataset-name" className={styles.label}>
+                  数据集名称
+                </label>
+                <div className={styles.inputWithButton}>
+                  <input
+                    id="dataset-name"
+                    type="text"
+                    value={datasetName}
+                    onChange={(e) => setDatasetName(e.target.value)}
+                    className={`${styles.input} ${styles[theme]}`}
+                    placeholder="输入数据集名称"
+                  />
+                  <button
+                    onClick={saveDataset}
+                    className={`${styles.button} ${styles.primary}`}
+                  >
+                    保存数据集
+                  </button>
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
-      )}
-      
-      {/* 错误提示 */}
-      {error && (
-        <div className={`${styles.message} ${styles.error} ${styles[theme]}`}>
-          {error}
-        </div>
-      )}
+            </div>
+          )}
+          
+          {/* 错误和成功提示 */}
+          {error && (
+            <div className={`${styles.message} ${styles.error} ${styles[theme]}`}>
+              {error}
+            </div>
+          )}
 
-      {/* 成功提示 */}
-      {successMessage && (
-        <div className={`${styles.message} ${styles.success} ${styles[theme]}`}>
-          {successMessage}
+          {successMessage && (
+            <div className={`${styles.message} ${styles.success} ${styles[theme]}`}>
+              {successMessage}
+            </div>
+          )}
         </div>
-      )}
-      
-      <div className={`${styles.formSection} ${styles[theme]}`}>
-        <div className={styles.label}>支持的数据格式:</div>
-        <pre className={`${styles.input} ${styles[theme]}`} style={{
-          fontFamily: 'monospace',
-          fontSize: '0.9rem',
-          whiteSpace: 'pre-wrap',
-          overflowX: 'auto'
-        }}>
-          {`[
+        
+        {/* 右侧：数据集列表和格式示例 */}
+        <div className={styles.infoSection}>
+          {/* 已导入数据集列表 */}
+          <div className={`${styles.card} ${styles[theme]}`}>
+            <h2 className={styles.cardTitle}>已导入的数据集</h2>
+            <div className={styles.datasetList}>
+              {importedDatasets.length === 0 ? (
+                <div className={styles.noDatasets}>暂无导入的数据集</div>
+              ) : (
+                importedDatasets.map(dataset => (
+                  <div 
+                    key={dataset.id}
+                    className={`${styles.datasetCard} ${styles[theme]}`}
+                  >
+                    <div className={styles.datasetInfo}>
+                      <div className={styles.datasetName}>
+                        {dataset.name}
+                      </div>
+                      <div className={styles.datasetMeta}>
+                        {dataset.data.length} 条数据 · {new Date(dataset.createdAt).toLocaleString()}
+                      </div>
+                    </div>
+                    <div className={styles.datasetActions}>
+                      <button 
+                        className={`${styles.button} ${styles.small} ${styles.secondary}`}
+                        onClick={() => handlePreviewDataset(dataset)}
+                      >
+                        预览
+                      </button>
+                      <button 
+                        className={`${styles.button} ${styles.small} ${styles.primary}`}
+                        onClick={() => handleCreateChart(dataset)}
+                      >
+                        创建图表
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+          
+          {/* 支持的数据格式示例 */}
+          <div className={`${styles.card} ${styles[theme]} ${styles.formatExamplesSection}`}>
+            <h2 className={styles.cardTitle}>支持的数据格式</h2>
+            
+            <div className={styles.formatExampleTabs}>
+              <button 
+                className={`${styles.formatExampleTab} ${selectedFormat === 'json' ? styles.active : ''}`}
+                onClick={() => setSelectedFormat('json')}
+              >
+                JSON
+              </button>
+              <button 
+                className={`${styles.formatExampleTab} ${selectedFormat === 'csv' ? styles.active : ''}`}
+                onClick={() => setSelectedFormat('csv')}
+              >
+                CSV
+              </button>
+              <button 
+                className={`${styles.formatExampleTab} ${selectedFormat === 'excel' ? styles.active : ''}`}
+                onClick={() => setSelectedFormat('excel')}
+              >
+                Excel
+              </button>
+            </div>
+            
+            <div className={styles.formatExampleContent}>
+              {selectedFormat === 'json' && (
+                <pre className={`${styles.codeBlock} ${styles[theme]}`}>
+                  {`[
   { "id": "1", "name": "项目1", "value": 100 },
   { "id": "2", "name": "项目2", "value": 200 }
 ]`}
-        </pre>
+                </pre>
+              )}
+              
+              {selectedFormat === 'csv' && (
+                <pre className={`${styles.codeBlock} ${styles[theme]}`}>
+                  {`id,name,value
+1,项目1,100
+2,项目2,200`}
+                </pre>
+              )}
+              
+              {selectedFormat === 'excel' && (
+                <div className={styles.excelExample}>
+                  <p>Excel文件应包含以下列：</p>
+                  <ul>
+                    <li>id/编号 - 数据项的唯一标识</li>
+                    <li>name/名称 - 数据项的名称</li>
+                    <li>value/值 - 数据项的数值</li>
+                    <li>category/分类 (可选) - 数据项的分类</li>
+                    <li>timestamp/时间 (可选) - 数据项的时间戳</li>
+                  </ul>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

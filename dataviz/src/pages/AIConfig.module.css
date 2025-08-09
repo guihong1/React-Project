@@ -1,7 +1,6 @@
 .container {
-  padding: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .container.dark {
@@ -13,39 +12,118 @@
 }
 
 .title {
-  margin-bottom: 20px;
-  font-size: 24px;
-  font-weight: 600;
+  margin: 0 0 25px 0;
+  font-size: 32px;
+  font-weight: 700;
+  background: linear-gradient(90deg, #646cff, #a855f7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+  text-align: center;
+  width: 100%;
 }
 
 .content {
-  display: flex;
-  gap: 30px;
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 25px;
+  width: 100%;
+  padding: 20px;
+}
+
+@media (max-width: 1200px) {
+  .content {
+    grid-template-columns: 280px 1fr;
+    gap: 25px;
+    padding: 15px;
+  }
+}
+
+@media (max-width: 992px) {
+  .content {
+    grid-template-columns: 250px 1fr;
+    gap: 20px;
+    padding: 15px;
+  }
 }
 
 @media (max-width: 768px) {
   .content {
-    flex-direction: column;
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .content {
+    padding: 8px;
+    gap: 15px;
+  }
+  
+  .title {
+    font-size: 24px;
+    margin-bottom: 15px;
+  }
+  
+  .modelList, .modelDetails {
+    padding: 15px;
+    border-radius: 8px;
+  }
+  
+  .modelItem {
+    padding: 10px;
+    margin-bottom: 10px;
+  }
+  
+  .addButton {
+    padding: 10px;
+    font-size: 14px;
+  }
+  
+  .formGroup label {
+    font-size: 14px;
+  }
+  
+  .formGroup input, .apiKeyInput {
+    padding: 10px;
+    font-size: 14px;
+  }
+  
+  .formActions button {
+    padding: 10px 16px;
+    font-size: 14px;
+  }
+  
+  .togglePasswordButton {
+    font-size: 11px;
+    padding: 3px 6px;
+  }
+  
+  .passwordInputContainer .apiKeyInput {
+    padding-right: 50px;
   }
 }
 
 /* 模型列表样式 */
 .modelList {
-  flex: 1;
-  min-width: 250px;
-  max-width: 350px;
-  border-radius: 8px;
-  padding: 15px;
+  width: 100%;
+  border-radius: 12px;
+  padding: 20px;
+  height: fit-content;
+  position: sticky;
+  top: 20px;
+  overflow: auto;
 }
 
 .dark .modelList {
   background-color: #2a2a2a;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .light .modelList {
-  background-color: #f8f8f8;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background-color: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .modelList h3 {
@@ -61,31 +139,40 @@
 }
 
 .modelItem {
-  padding: 12px 15px;
-  margin-bottom: 8px;
-  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px;
+  margin-bottom: 15px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
+  border-left: 4px solid transparent;
 }
 
 .dark .modelItem {
   background-color: #333;
 }
 
-.light .modelItem {
-  background-color: #fff;
-}
-
 .dark .modelItem:hover {
   background-color: #444;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.light .modelItem {
+  background-color: #f5f5f5;
 }
 
 .light .modelItem:hover {
-  background-color: #f0f0f0;
+  background-color: #e8e8e8;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .modelItem.selected {
-  border-left: 3px solid #646cff;
+  border-left: 4px solid #646cff;
+  background: linear-gradient(90deg, rgba(100, 108, 255, 0.1), transparent);
 }
 
 .dark .modelItem.selected {
@@ -124,35 +211,51 @@
 
 .addButton {
   width: 100%;
-  padding: 10px;
+  padding: 12px 15px;
+  margin-top: 20px;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   background-color: #646cff;
   color: white;
   cursor: pointer;
-  font-weight: 500;
-  transition: background-color 0.2s;
+  font-weight: 600;
+  font-size: 15px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 6px rgba(100, 108, 255, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .addButton:hover {
   background-color: #535bf2;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(100, 108, 255, 0.4);
+}
+
+.addButton:before {
+  content: '+';
+  margin-right: 8px;
+  font-size: 18px;
+  font-weight: 700;
 }
 
 /* 模型详情样式 */
 .modelDetails {
-  flex: 2;
-  border-radius: 8px;
+  width: 100%;
+  border-radius: 12px;
   padding: 20px;
+  overflow: auto;
 }
 
 .dark .modelDetails {
   background-color: #2a2a2a;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .light .modelDetails {
-  background-color: #f8f8f8;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background-color: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .modelDetails h3 {
@@ -265,24 +368,44 @@
 /* 表单样式 */
 .modelForm {
   width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
 .formGroup {
-  margin-bottom: 15px;
+  margin-bottom: 20px;
 }
 
 .formGroup label {
   display: block;
-  margin-bottom: 5px;
-  font-weight: 500;
+  margin-bottom: 8px;
+  font-weight: 600;
+  font-size: 15px;
+  color: #555;
+}
+
+.dark .formGroup label {
+  color: #e0e0e0;
 }
 
 .formGroup input, .apiKeyInput {
   width: 100%;
-  padding: 10px;
-  border-radius: 4px;
+  padding: 12px 15px;
+  border-radius: 8px;
   border: 1px solid #ddd;
-  font-size: 14px;
+  font-size: 15px;
+  transition: all 0.3s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.passwordInputContainer .apiKeyInput {
+  padding-right: 60px; /* 为显示/隐藏按钮留出空间 */
+}
+
+.formGroup input:focus, .apiKeyInput:focus {
+  outline: none;
+  border-color: #646cff;
+  box-shadow: 0 0 0 3px rgba(100, 108, 255, 0.2);
 }
 
 .dark .formGroup input, .dark .apiKeyInput {
@@ -291,9 +414,46 @@
   color: #f0f0f0;
 }
 
+.dark .formGroup input:focus, .dark .apiKeyInput:focus {
+  border-color: #646cff;
+  box-shadow: 0 0 0 3px rgba(100, 108, 255, 0.3);
+}
+
 .apiKeyContainer {
   flex: 1;
   margin-left: 10px;
+}
+
+.passwordInputContainer {
+  position: relative;
+  width: 100%;
+  display: flex;
+}
+
+.togglePasswordButton {
+  position: absolute;
+  right: 5px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #646cff;
+  cursor: pointer;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.togglePasswordButton:hover {
+  background-color: rgba(100, 108, 255, 0.1);
+}
+
+.dark .togglePasswordButton {
+  color: #a5acff;
+}
+
+.dark .togglePasswordButton:hover {
+  background-color: rgba(165, 172, 255, 0.1);
 }
 
 .apiSaveContainer {
@@ -321,21 +481,30 @@
 .formActions {
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
-  margin-top: 20px;
+  gap: 15px;
+  margin-top: 30px;
 }
 
 .formActions button {
-  padding: 8px 16px;
+  padding: 12px 24px;
   border: none;
-  border-radius: 4px;
+  border-radius: 8px;
   cursor: pointer;
-  font-weight: 500;
+  font-weight: 600;
+  font-size: 15px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
 .formActions button[type="button"] {
-  background-color: #e0e0e0;
+  background-color: #f0f0f0;
   color: #333;
+}
+
+.formActions button[type="button"]:hover {
+  background-color: #e0e0e0;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .dark .formActions button[type="button"] {
@@ -343,11 +512,19 @@
   color: #f0f0f0;
 }
 
+.dark .formActions button[type="button"]:hover {
+  background-color: #505050;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
 .formActions button[type="submit"] {
   background-color: #646cff;
   color: white;
+  box-shadow: 0 2px 6px rgba(100, 108, 255, 0.3);
 }
 
 .formActions button[type="submit"]:hover {
   background-color: #535bf2;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(100, 108, 255, 0.4);
 }

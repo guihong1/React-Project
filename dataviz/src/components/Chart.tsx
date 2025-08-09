@@ -130,7 +130,6 @@ export const Chart: React.FC<ChartProps> = ({ config }) => {
     return (
       <ResponsiveContainer width="100%" height={height}>
         <ScatterChart
-          data={data}
           margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
           style={backgroundColor ? { backgroundColor } : undefined}
         >
@@ -147,11 +146,11 @@ export const Chart: React.FC<ChartProps> = ({ config }) => {
             name={yAxisName}
             stroke={textColor}
           />
+          {showBubble && <ZAxis type="number" dataKey="z" range={[60, 400]} name="size" />}
           <Tooltip cursor={{ strokeDasharray: '3 3' }} />
           {showLegend && <Legend />}
-          {showBubble && <ZAxis type="number" dataKey="z" range={[50, 500]} />}
           <Scatter 
-            name={config.title} 
+            name={config.title || xAxisName} 
             data={data} 
             fill={scatterColor} 
           />
@@ -206,8 +205,9 @@ export const Chart: React.FC<ChartProps> = ({ config }) => {
       const dataPoint: any = { subject };
       validData.forEach((dataSet, index) => {
         const item = dataSet.find(d => d.subject === subject);
-        const seriesName = legendNames[index] || `数据集${index + 1}`;
-        dataPoint[seriesName] = item ? item.value : 0;
+        // 确保legendNames存在且有效
+        const seriesName = (legendNames && legendNames[index]) || `数据集${index + 1}`;
+        dataPoint[seriesName] = item && typeof item.value === 'number' ? item.value : 0;
       });
       return dataPoint;
     });
@@ -225,14 +225,16 @@ export const Chart: React.FC<ChartProps> = ({ config }) => {
           <PolarAngleAxis dataKey="subject" />
           <PolarRadiusAxis />
           {validData.map((dataSet, index) => {
-            const seriesName = legendNames[index] || `数据集${index + 1}`;
+            const seriesName = (legendNames && legendNames[index]) || `数据集${index + 1}`;
+            const colorIndex = index % colors.length;
+            const color = colors[colorIndex] || '#8884d8'; // 提供默认颜色以防颜色数组为空
             return (
               <Radar
                 key={index}
                 name={seriesName}
                 dataKey={seriesName}
-                stroke={colors[index % colors.length]}
-                fill={colors[index % colors.length]}
+                stroke={color}
+                fill={color}
                 fillOpacity={0.6}
               />
             );

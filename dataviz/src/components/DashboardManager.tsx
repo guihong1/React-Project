@@ -194,9 +194,10 @@ export const DashboardManager: React.FC<DashboardManagerProps> = () => {
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    // 使用捕获阶段以确保在冒泡之前处理
+    document.addEventListener('mousedown', handleClickOutside, true);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('mousedown', handleClickOutside, true);
     };
   }, [showChartDropdown]);
 
@@ -204,11 +205,13 @@ export const DashboardManager: React.FC<DashboardManagerProps> = () => {
     <div className={`${styles.container} ${styles[theme]}`}>
       <div className={styles.header}>
         <h2 className={styles.title}>
+          <span className={styles.titleIcon}>📊</span>
           仪表板管理
         </h2>
         <button
           onClick={() => navigate('/dashboard')}
           className={styles.closeButton}
+          aria-label="关闭"
         >
           ×
         </button>
@@ -217,6 +220,7 @@ export const DashboardManager: React.FC<DashboardManagerProps> = () => {
       {/* 创建新仪表板 */}
       <div className={styles.createSection}>
         <h3 className={styles.sectionTitle}>
+          <span className={styles.sectionIcon}>✨</span>
           创建新仪表板
         </h3>
         <div className={styles.createForm}>
@@ -226,10 +230,12 @@ export const DashboardManager: React.FC<DashboardManagerProps> = () => {
             onChange={(e) => setNewDashboardTitle(e.target.value)}
             placeholder="输入仪表板标题"
             className={styles.input}
+            maxLength={50}
           />
           <button
             onClick={handleCreateDashboard}
             className={`${styles.button} ${styles.primaryButton}`}
+            disabled={!newDashboardTitle.trim()}
           >
             创建
           </button>
@@ -237,21 +243,24 @@ export const DashboardManager: React.FC<DashboardManagerProps> = () => {
       </div>
 
       {/* 仪表板列表 */}
-      <div>
+      <div className={styles.dashboardsSection}>
         <h3 className={styles.sectionTitle}>
+          <span className={styles.sectionIcon}>📋</span>
           我的仪表板
         </h3>
         
         {dashboards.length === 0 ? (
-          <p className={styles.emptyMessage}>
-            暂无仪表板，请创建新的仪表板
-          </p>
+          <div className={styles.emptyDashboards}>
+            <p className={styles.emptyMessage}>
+              暂无仪表板，请创建新的仪表板
+            </p>
+          </div>
         ) : (
           <div className={styles.dashboardList}>
             {dashboards.map(dashboard => (
               <div 
-                key={dashboard.id}
-                className={`${styles.dashboardCard} ${dashboard.id === currentDashboard?.id ? styles.active : ''}`}
+                key={dashboard.id} 
+                className={`${styles.dashboardCard} ${currentDashboard && currentDashboard.id === dashboard.id ? styles.active : ''}`}
               >
                 {editingDashboardId === dashboard.id ? (
                   <div className={styles.editForm}>
@@ -260,43 +269,50 @@ export const DashboardManager: React.FC<DashboardManagerProps> = () => {
                       value={editingTitle}
                       onChange={(e) => setEditingTitle(e.target.value)}
                       className={styles.input}
+                      placeholder="仪表板标题"
+                      autoFocus
                     />
-                    <button
-                      onClick={handleSaveEdit}
-                      className={`${styles.button} ${styles.successButton}`}
-                    >
-                      保存
-                    </button>
-                    <button
-                      onClick={handleCancelEdit}
-                      className={`${styles.button} ${styles.secondaryButton}`}
-                    >
-                      取消
-                    </button>
-                  </div>
-                ) : (
-                  <div className={styles.dashboardHeader}>
-                    <h4 className={styles.dashboardTitle}>
-                      {dashboard.title}
-                    </h4>
                     <div className={styles.actionButtons}>
                       <button
+                        onClick={handleSaveEdit}
+                        className={`${styles.button} ${styles.primaryButton}`}
+                        disabled={!editingTitle.trim()}
+                      >
+                        保存
+                      </button>
+                      <button
+                        onClick={handleCancelEdit}
+                        className={`${styles.button} ${styles.secondaryButton}`}
+                      >
+                        取消
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className={styles.dashboardInfo}>
+                    <h3 className={styles.dashboardTitle}>
+                      {dashboard.title}
+                    </h3>
+                    <div className={styles.dashboardActions}>
+                      <button
+                        onClick={() => handleSelectDashboard(dashboard)}
+                        className={`${styles.button} ${styles.primaryButton}`}
+                      >
+                        查看
+                      </button>
+                      <button
                         onClick={() => handleStartEdit(dashboard)}
-                        className={`${styles.button} ${styles.secondaryButton} ${styles.smallButton}`}
+                        className={`${styles.button} ${styles.secondaryButton}`}
+                        aria-label="编辑仪表板"
                       >
                         编辑
                       </button>
                       <button
                         onClick={() => handleDeleteDashboard(dashboard.id)}
-                        className={`${styles.button} ${styles.dangerButton} ${styles.smallButton}`}
+                        className={`${styles.button} ${styles.dangerButton}`}
+                        aria-label="删除仪表板"
                       >
                         删除
-                      </button>
-                      <button
-                        onClick={() => handleSelectDashboard(dashboard)}
-                        className={`${styles.button} ${styles.primaryButton} ${styles.smallButton}`}
-                      >
-                        查看
                       </button>
                     </div>
                   </div>
@@ -312,8 +328,9 @@ export const DashboardManager: React.FC<DashboardManagerProps> = () => {
                       <button
                         onClick={() => setShowChartDropdown(showChartDropdown === dashboard.id ? null : dashboard.id)}
                         className={styles.dropdownButton}
+                        aria-label="添加图表"
                       >
-                        添加图表...
+                        添加图表
                         <span className={styles.dropdownArrow}>▼</span>
                       </button>
                       
@@ -336,14 +353,16 @@ export const DashboardManager: React.FC<DashboardManagerProps> = () => {
                                   }}
                                   className={styles.dropdownItemText}
                                 >
-                                  {chart.title}
+                                  {chart.title} ({chart.type})
                                 </span>
                                 <button
                                   onClick={(e) => {
                                     e.stopPropagation();
+                                    e.preventDefault();
                                     handleDeleteChart(chart.id);
                                   }}
                                   className={`${styles.button} ${styles.dangerButton} ${styles.miniButton}`}
+                                  aria-label="删除图表"
                                 >
                                   删除
                                 </button>
@@ -356,9 +375,11 @@ export const DashboardManager: React.FC<DashboardManagerProps> = () => {
                   </div>
                   
                   {dashboard.charts.length === 0 ? (
-                    <p className={styles.emptyChartMessage}>
-                      暂无图表，请添加图表
-                    </p>
+                    <div className={styles.emptyCharts}>
+                      <p className={styles.emptyChartMessage}>
+                        暂无图表，请添加图表
+                      </p>
+                    </div>
                   ) : (
                     <ul className={styles.chartList}>
                       {dashboard.charts.map(chart => (
@@ -372,6 +393,7 @@ export const DashboardManager: React.FC<DashboardManagerProps> = () => {
                           <button
                             onClick={() => handleRemoveChartFromDashboard(dashboard.id, chart.id)}
                             className={`${styles.button} ${styles.secondaryButton} ${styles.smallButton}`}
+                            aria-label="从仪表板移除图表"
                           >
                             移除
                           </button>

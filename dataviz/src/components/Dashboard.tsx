@@ -25,6 +25,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onEditChart }) => {
     <div className={`${styles.container} ${theme === 'dark' ? styles.dark : styles.light}`}>
       <h1 className={`${styles.title} ${theme === 'dark' ? styles.dark : styles.light}`}>
         {currentDashboard.title}
+        <span className={styles.chartCount}>({currentDashboard.charts.length} 个图表)</span>
       </h1>
       
       <div className={styles.grid}>
@@ -38,8 +39,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ onEditChart }) => {
             <button
               onClick={() => navigate(`/edit/${chart.id}`)}
               className={`${styles.editButton} ${theme === 'dark' ? styles.dark : styles.light}`}
+              aria-label="编辑图表"
             >
-              编辑
+              <span className={styles.editIcon}>✏️</span> 编辑
             </button>
           </div>
         ))}
