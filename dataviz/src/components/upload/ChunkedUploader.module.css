@@ -1,0 +1,337 @@
+.container {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* 上传区域样式 */
+.uploadArea {
+  border: 2px dashed #ccc;
+  border-radius: 12px;
+  padding: 60px 20px;
+  text-align: center;
+  margin-bottom: 30px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+}
+
+.uploadArea.light {
+  background-color: #fafafa;
+  border-color: #d9d9d9;
+}
+
+.uploadArea.dark {
+  background-color: #2a2a2a;
+  border-color: #555;
+}
+
+.uploadArea.dragging {
+  border-color: #667eea;
+  background-color: rgba(102, 126, 234, 0.1);
+  transform: scale(1.02);
+}
+
+.uploadArea:hover {
+  border-color: #667eea;
+}
+
+.uploadIcon {
+  font-size: 3rem;
+  margin-bottom: 20px;
+  opacity: 0.6;
+}
+
+.uploadText {
+  font-size: 1.1rem;
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+
+.uploadSubtext {
+  font-size: 0.9rem;
+  opacity: 0.7;
+}
+
+.fileInput {
+  display: none;
+}
+
+/* 上传进度样式 */
+.uploadProgress {
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.uploadProgress.light {
+  background-color: #ffffff;
+  border: 1px solid #f0f0f0;
+}
+
+.uploadProgress.dark {
+  background-color: #2d2d2d;
+  border: 1px solid #444;
+}
+
+.fileInfo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.fileName {
+  font-weight: 600;
+  font-size: 1.1rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 70%;
+}
+
+.fileSize {
+  font-size: 0.9rem;
+  opacity: 0.7;
+}
+
+.progressBarContainer {
+  height: 10px;
+  background-color: #f0f0f0;
+  border-radius: 5px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.uploadProgress.dark .progressBarContainer {
+  background-color: #444;
+}
+
+.progressBar {
+  height: 100%;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  border-radius: 5px;
+  transition: width 0.3s ease;
+}
+
+.progressInfo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.progressPercentage {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.progressStatus {
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+.uploadActions {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.actionButton {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pauseButton {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+.pauseButton:hover {
+  background-color: #e0e0e0;
+}
+
+.resumeButton {
+  background-color: #667eea;
+  color: white;
+}
+
+.resumeButton:hover {
+  background-color: #5a6edf;
+}
+
+.retryButton {
+  background-color: #667eea;
+  color: white;
+}
+
+.retryButton:hover {
+  background-color: #5a6edf;
+}
+
+.cancelButton {
+  background-color: #ff6b6b;
+  color: white;
+}
+
+.cancelButton:hover {
+  background-color: #ff5252;
+}
+
+.newButton {
+  background-color: #4caf50;
+  color: white;
+}
+
+.newButton:hover {
+  background-color: #43a047;
+}
+
+/* 分片详情样式 */
+.chunksDetails {
+  margin-top: 10px;
+  border-top: 1px solid #f0f0f0;
+  padding-top: 15px;
+}
+
+.uploadProgress.dark .chunksDetails {
+  border-top-color: #444;
+}
+
+.chunksDetails summary {
+  cursor: pointer;
+  font-weight: 500;
+  margin-bottom: 10px;
+  user-select: none;
+}
+
+.chunksList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.chunkItem {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  background-color: #f9f9f9;
+}
+
+.uploadProgress.dark .chunkItem {
+  background-color: #333;
+}
+
+.chunkItem.pending {
+  border-left: 3px solid #ffc107;
+}
+
+.chunkItem.uploading {
+  border-left: 3px solid #2196f3;
+}
+
+.chunkItem.success {
+  border-left: 3px solid #4caf50;
+}
+
+.chunkItem.error {
+  border-left: 3px solid #ff5252;
+}
+
+.chunkId {
+  width: 80px;
+  font-weight: 500;
+}
+
+.chunkSize {
+  width: 80px;
+  opacity: 0.7;
+}
+
+.chunkProgress {
+  flex: 1;
+  height: 6px;
+  background-color: #f0f0f0;
+  border-radius: 3px;
+  overflow: hidden;
+  margin: 0 10px;
+}
+
+.uploadProgress.dark .chunkProgress {
+  background-color: #444;
+}
+
+.chunkProgressBar {
+  height: 100%;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.chunkStatus {
+  width: 100px;
+  text-align: right;
+  font-size: 0.85rem;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .uploadArea {
+    padding: 40px 15px;
+  }
+  
+  .fileInfo {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+  
+  .fileName {
+    max-width: 100%;
+  }
+  
+  .uploadActions {
+    flex-wrap: wrap;
+  }
+  
+  .actionButton {
+    flex: 1;
+    min-width: 80px;
+  }
+}
+
+@media (max-width: 480px) {
+  .chunkItem {
+    flex-wrap: wrap;
+  }
+  
+  .chunkId, .chunkSize {
+    width: auto;
+    margin-right: 10px;
+  }
+  
+  .chunkProgress {
+    order: 3;
+    width: 100%;
+    margin: 5px 0;
+  }
+  
+  .chunkStatus {
+    width: auto;
+    text-align: left;
+  }
+}

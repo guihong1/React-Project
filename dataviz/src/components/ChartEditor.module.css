@@ -187,9 +187,51 @@
 
 .buttonGroup {
   display: flex;
-  justify-content: flex-end;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  margin-top: 40px;
+}
+
+.historyButtons {
+  display: flex;
   gap: 10px;
-  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+.historyButton {
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.historyButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.historyButton.light {
+  background-color: #f8f9fa;
+  color: #495057;
+}
+
+.historyButton.light:hover:not(:disabled) {
+  background-color: #e9ecef;
+  border-color: #adb5bd;
+}
+
+.historyButton.dark {
+  background-color: #495057;
+  color: #f8f9fa;
+  border-color: #6c757d;
+}
+
+.historyButton.dark:hover:not(:disabled) {
+  background-color: #6c757d;
+  border-color: #adb5bd;
 }
 
 .light {

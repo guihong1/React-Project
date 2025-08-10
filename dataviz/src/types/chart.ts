@@ -1,3 +1,6 @@
+// 从outlierDetection.ts导入的接口
+import type { OutlierDetectionResult } from '../utils/outlierDetection';
+
 // 数据类型定义
 export interface DataPoint {
   id: string;
@@ -5,6 +8,11 @@ export interface DataPoint {
   value: number;
   category?: string;
   timestamp?: string;
+}
+
+// 带有异常值标记的数据点
+export interface DataPointWithOutlier extends DataPoint {
+  outlier?: OutlierDetectionResult;
 }
 
 // 图表类型
@@ -78,3 +86,6 @@ export interface RadarChartConfig extends BaseChartConfig {
 
 // 图表配置联合类型
 export type ChartConfig = BarChartConfig | LineChartConfig | PieChartConfig | ScatterChartConfig | RadarChartConfig;
+
+// 添加一个运行时的空对象，确保ChartConfig在运行时可用
+export const ChartConfig = {};

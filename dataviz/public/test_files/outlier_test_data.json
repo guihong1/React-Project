@@ -1,0 +1,92 @@
+[
+  {
+    "id": "1",
+    "name": "正常值1",
+    "value": 100,
+    "category": "A类"
+  },
+  {
+    "id": "2",
+    "name": "正常值2",
+    "value": 105,
+    "category": "A类"
+  },
+  {
+    "id": "3",
+    "name": "正常值3",
+    "value": 98,
+    "category": "A类"
+  },
+  {
+    "id": "4",
+    "name": "正常值4",
+    "value": 102,
+    "category": "A类"
+  },
+  {
+    "id": "5",
+    "name": "正常值5",
+    "value": 95,
+    "category": "A类"
+  },
+  {
+    "id": "6",
+    "name": "异常值1",
+    "value": 500,
+    "category": "A类"
+  },
+  {
+    "id": "7",
+    "name": "正常值6",
+    "value": 110,
+    "category": "B类"
+  },
+  {
+    "id": "8",
+    "name": "正常值7",
+    "value": 108,
+    "category": "B类"
+  },
+  {
+    "id": "9",
+    "name": "正常值8",
+    "value": 103,
+    "category": "B类"
+  },
+  {
+    "id": "10",
+    "name": "异常值2",
+    "value": 5,
+    "category": "B类"
+  },
+  {
+    "id": "11",
+    "name": "正常值9",
+    "value": 112,
+    "category": "B类"
+  },
+  {
+    "id": "12",
+    "name": "正常值10",
+    "value": 97,
+    "category": "C类"
+  },
+  {
+    "id": "13",
+    "name": "正常值11",
+    "value": 99,
+    "category": "C类"
+  },
+  {
+    "id": "14",
+    "name": "正常值12",
+    "value": 101,
+    "category": "C类"
+  },
+  {
+    "id": "15",
+    "name": "异常值3",
+    "value": 800,
+    "category": "C类"
+  }
+]

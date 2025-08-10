@@ -292,3 +292,103 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* 功能提示区域 */
+.featureTip {
+  margin-top: 40px;
+  padding: 24px;
+  border-radius: 12px;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  border: 1px solid;
+  position: relative;
+  overflow: hidden;
+}
+
+.featureTip.light {
+  background: linear-gradient(135deg, #f8f9ff 0%, #e8f2ff 100%);
+  border-color: #e0e7ff;
+  color: #374151;
+}
+
+.featureTip.dark {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  border-color: #334155;
+  color: #e2e8f0;
+}
+
+.featureTip::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+}
+
+.tipIcon {
+  font-size: 2rem;
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
+.tipContent {
+  flex: 1;
+}
+
+.tipContent h4 {
+  margin: 0 0 12px 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.tipContent p {
+  margin: 8px 0;
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+.tipContent p:last-child {
+  margin-bottom: 0;
+}
+
+.tipContent strong {
+  font-weight: 600;
+}
+
+.featureTip.light .tipContent strong {
+  color: #4f46e5;
+}
+
+.featureTip.dark .tipContent strong {
+  color: #818cf8;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .featureTip {
+    margin-top: 30px;
+    padding: 20px;
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .tipIcon {
+    margin-top: 0;
+    align-self: center;
+  }
+  
+  .tipContent h4 {
+    font-size: 1.1rem;
+  }
+  
+  .tipContent p {
+    font-size: 0.9rem;
+  }
+}

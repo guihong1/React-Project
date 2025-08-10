@@ -14,8 +14,14 @@
 }
 
 .header {
-  text-align: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 40px;
+}
+
+.headerLeft {
+  text-align: left;
 }
 
 .header h1 {
@@ -80,6 +86,30 @@
 .uploadSubtext {
   font-size: 0.9rem;
   opacity: 0.7;
+}
+
+.enhancedUploadLink {
+  margin-top: 10px;
+  font-size: 0.85rem;
+}
+
+.enhancedUploadLink a {
+  color: #4a6cf7;
+  text-decoration: none;
+  transition: color 0.2s, text-decoration 0.2s;
+}
+
+.enhancedUploadLink a:hover {
+  color: #3a5ce5;
+  text-decoration: underline;
+}
+
+.dark .enhancedUploadLink a {
+  color: #667eea;
+}
+
+.dark .enhancedUploadLink a:hover {
+  color: #869ef8;
 }
 
 .fileInput {
@@ -197,6 +227,96 @@
   border-color: #444;
 }
 
+/* 异常值相关样式 */
+.outlierRow {
+  background-color: rgba(255, 77, 79, 0.05);
+}
+
+.outlierCell {
+  position: relative;
+  color: #ff4d4f;
+  font-weight: 500;
+}
+
+.outlierCell::after {
+  content: '⚠️';
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  transform: translateY(-50%);
+  font-size: 0.8rem;
+  opacity: 0.7;
+}
+
+.outlierSummary {
+  margin-top: 20px;
+  padding: 15px;
+  border-radius: 8px;
+  background-color: rgba(255, 77, 79, 0.05);
+  border: 1px solid rgba(255, 77, 79, 0.2);
+}
+
+.outlierTitle {
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #ff4d4f;
+}
+
+.outlierInfo {
+  font-size: 0.9rem;
+}
+
+.outlierCount {
+  font-weight: 600;
+  color: #ff4d4f;
+}
+
+.outlierPercentage {
+  font-weight: 500;
+}
+
+.outlierMethod {
+  font-style: italic;
+  font-weight: 500;
+}
+
+.outlierList {
+  margin-top: 10px;
+  max-height: 150px;
+  overflow-y: auto;
+  padding: 8px;
+  border-radius: 4px;
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+.outlierItem {
+  margin-bottom: 5px;
+  padding-bottom: 5px;
+  border-bottom: 1px dashed rgba(255, 77, 79, 0.2);
+}
+
+.outlierItem:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.outlierName {
+  font-weight: 500;
+}
+
+.outlierValue {
+  font-weight: 600;
+  color: #ff4d4f;
+}
+
+.outlierReason {
+  font-style: italic;
+  opacity: 0.8;
+}
+
 .actionButtons {
   display: flex;
   gap: 15px;
@@ -239,6 +359,17 @@
 
 .button.secondary:hover {
   transform: translateY(-1px);
+}
+
+.button.danger {
+  background-color: #ff4d4f;
+  color: white;
+}
+
+.button.danger:hover {
+  background-color: #ff7875;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 77, 79, 0.3);
 }
 
 .button:disabled {
@@ -306,6 +437,34 @@
   align-items: center;
   z-index: 1000;
   border-radius: 8px;
+}
+
+/* 异常值检测选项样式 */
+.outlierDetectionOption {
+  margin-top: 15px;
+  padding: 12px;
+  border-radius: 6px;
+  background-color: rgba(102, 126, 234, 0.05);
+  border: 1px solid rgba(102, 126, 234, 0.1);
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  margin-bottom: 5px;
+}
+
+.checkboxLabel input {
+  margin: 0;
+  accent-color: #667eea;
+  width: 16px;
+  height: 16px;
+}
+
+.checkboxLabel span {
+  font-weight: 500;
 }
 
 /* 文件格式选择器样式 */
@@ -646,6 +805,93 @@
   overflow-x: auto;
 }
 
+/* 虚拟滚动表格样式 */
+.virtualTableContainer {
+  margin-bottom: 30px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.virtualTableHeader {
+  width: 100%;
+  overflow-x: hidden;
+}
+
+.virtualTableHeader table {
+  width: 100%;
+  margin-bottom: 0;
+  border-bottom: none;
+  border-radius: 8px 8px 0 0;
+}
+
+.virtualList {
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+}
+
+.virtualTableRow {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #f0f0f0;
+  transition: background-color 0.2s;
+}
+
+.dark .virtualTableRow {
+  border-color: #444;
+}
+
+.virtualTableRow:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.dark .virtualTableRow:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.virtualTableRowInner {
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+
+.virtualTableCell {
+  flex: 1;
+  padding: 8px 16px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+}
+
+.tableFooter {
+  padding: 10px 16px;
+  text-align: right;
+  font-size: 0.85rem;
+  color: #666;
+  background-color: #f8f9fa;
+  border-top: 1px solid #f0f0f0;
+  border-radius: 0 0 8px 8px;
+}
+
+.dark .tableFooter {
+  background-color: #3a3a3a;
+  color: #ccc;
+  border-color: #444;
+}
+
+.noDataMessage {
+  padding: 20px;
+  text-align: center;
+  color: #666;
+  font-style: italic;
+}
+
+.dark .noDataMessage {
+  color: #aaa;
+}
+
 .moreDataHint {
   margin-top: 10px;
   font-size: 0.85rem;
@@ -693,6 +939,126 @@
   .previewModalBody {
     max-height: calc(95vh - 70px);
   }
+}
+
+/* 异常值相关样式 */
+.outlierRow {
+  background-color: rgba(255, 193, 7, 0.1);
+}
+
+.dark .outlierRow {
+  background-color: rgba(255, 193, 7, 0.15);
+}
+
+.outlierCell {
+  position: relative;
+  color: #e65100;
+  font-weight: 500;
+}
+
+.dark .outlierCell {
+  color: #ffb74d;
+}
+
+.outlierCell::before {
+  content: '⚠️';
+  font-size: 0.8em;
+  margin-right: 4px;
+  opacity: 0.8;
+}
+
+.outlierSummary {
+  margin-top: 16px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  background-color: rgba(255, 193, 7, 0.1);
+  border-left: 4px solid #ffc107;
+}
+
+.dark .outlierSummary {
+  background-color: rgba(255, 193, 7, 0.15);
+  border-left: 4px solid #ffb300;
+}
+
+.outlierTitle {
+  margin-top: 0;
+  margin-bottom: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #e65100;
+}
+
+.dark .outlierTitle {
+  color: #ffb74d;
+}
+
+.outlierInfo p {
+  margin: 0 0 8px 0;
+}
+
+.outlierCount, .outlierPercentage, .outlierMethod {
+  font-weight: 600;
+}
+
+.outlierList {
+  margin-top: 8px;
+  max-height: 150px;
+  overflow-y: auto;
+  padding: 8px;
+  background-color: rgba(255, 255, 255, 0.5);
+  border-radius: 4px;
+}
+
+.dark .outlierList {
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.outlierItem {
+  margin-bottom: 4px;
+  font-size: 0.9rem;
+}
+
+.outlierName {
+  font-weight: 500;
+}
+
+.outlierValue {
+  font-weight: 600;
+  color: #e65100;
+  margin: 0 4px;
+}
+
+.dark .outlierValue {
+  color: #ffb74d;
+}
+
+.outlierReason {
+  font-style: italic;
+  opacity: 0.8;
+}
+
+/* 异常值检测选项 */
+.outlierDetectionOption {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.dark .outlierDetectionOption {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.checkboxLabel input[type="checkbox"] {
+  margin-right: 8px;
+  width: 16px;
+  height: 16px;
 }
 
 @media (max-width: 768px) {

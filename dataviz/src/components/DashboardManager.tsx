@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppStore } from '../store';
-import type { Dashboard, ChartConfig } from '../types';
+import type { Dashboard } from '../types';
+import type { ChartConfig } from '../types/chart';
 import styles from './DashboardManager.module.css';
 
 interface DashboardManagerProps {}

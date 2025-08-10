@@ -1,27 +1,46 @@
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
-import type { DataPoint } from '../types';
+import type { DataPoint, DataPointWithOutlier } from '../types/chart';
+import { detectOutliers } from './outlierDetection';
 
 /**
  * 解析不同格式的数据文件
  * @param file 要解析的文件
  * @param format 指定的文件格式，如果为'auto'则自动检测
+ * @param detectOutliersFlag 是否检测异常值
  * @returns 解析后的数据点数组
  */
-export const parseDataFile = async (file: File, format: 'json' | 'csv' | 'excel' | 'auto' = 'auto'): Promise<DataPoint[]> => {
+export const parseDataFile = async (
+  file: File, 
+  format: 'json' | 'csv' | 'excel' | 'auto' = 'auto',
+  detectOutliersFlag: boolean = false
+): Promise<DataPointWithOutlier[]> => {
   // 如果指定了格式，则使用指定的格式
   const fileType = format === 'auto' ? getFileType(file) : format;
   
+  let parsedData: DataPoint[];
+  
   switch (fileType) {
     case 'json':
-      return parseJsonFile(file);
+      parsedData = await parseJsonFile(file);
+      break;
     case 'csv':
-      return parseCsvFile(file);
+      parsedData = await parseCsvFile(file);
+      break;
     case 'excel':
-      return parseExcelFile(file);
+      parsedData = await parseExcelFile(file);
+      break;
     default:
       throw new Error(`不支持的文件格式: ${file.name}`);
   }
+  
+  // 如果启用了异常值检测，则进行检测
+  if (detectOutliersFlag) {
+    return detectOutliers(parsedData);
+  }
+  
+  // 否则返回原始数据
+  return parsedData as DataPointWithOutlier[];
 };
 
 /**

@@ -1,24 +1,8 @@
-// 数据类型定义
-export interface DataPoint {
-  id: string;
-  name: string;
-  value: number;
-  category?: string;
-  timestamp?: string;
-}
+// 从chart.ts导入图表相关类型
+import type { DataPoint, ChartType, ChartConfig } from './chart';
 
-// 图表类型
-export type ChartType = 'bar' | 'line' | 'pie' | 'scatter' | 'radar';
-
-// 图表配置
-export interface ChartConfig {
-  id: string;
-  title: string;
-  type: ChartType;
-  data: DataPoint[];
-  width?: number;
-  height?: number;
-}
+// 重新导出这些类型
+export type { DataPoint, ChartType, ChartConfig };
 
 // 仪表板配置
 export interface Dashboard {
@@ -27,8 +11,14 @@ export interface Dashboard {
   charts: ChartConfig[];
 }
 
+// 添加一个运行时的空对象，确保Dashboard在运行时可用
+export const Dashboard = {};
+
 // 主题类型
 export type Theme = 'light' | 'dark';
+
+// 添加一个运行时的空对象，确保Theme在运行时可用
+export const Theme = {};
 
 // 导入的数据集
 export interface ImportedDataset {
@@ -37,6 +27,9 @@ export interface ImportedDataset {
   data: DataPoint[];
   createdAt: number;
 }
+
+// 添加一个运行时的空对象，确保ImportedDataset在运行时可用
+export const ImportedDataset = {};
 
 // AI模型类型
 export interface AIModel {
@@ -63,4 +56,5 @@ export interface AppState {
   selectedAIModelId: string;
   isTestingConnection: boolean;
   testResult: { success: boolean; message: string } | null;
+
 }

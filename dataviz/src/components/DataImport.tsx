@@ -1,10 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAppStore } from '../store';
 import type { DataPoint } from '../types/chart';
 import type { ImportedDataset } from '../types';
-import { parseDataFile } from '../utils/fileParser';
+import { parseFileWithWorker } from '../utils/workerUtils';
 import Chart from './Chart';
+import VirtualizedTable from './common/VirtualizedTable';
 import styles from './DataImport.module.css';
 
 interface DataImportProps {
@@ -53,8 +54,9 @@ export const DataImport: React.FC<DataImportProps> = ({ onImportSuccess }) => {
     setLoading(true);
     
     try {
-      // 根据用户选择的格式解析文件数据
-      const validData = await parseDataFile(file, selectedFormat);
+      // 使用WebWorker解析文件数据
+      const result = await parseFileWithWorker(file, selectedFormat);
+      const validData = result.data;
       
       // 更新文件名显示
       setFileName(file.name);
@@ -205,29 +207,12 @@ export const DataImport: React.FC<DataImportProps> = ({ onImportSuccess }) => {
               </button>
             </div>
             <div className={styles.previewModalBody}>
-              {/* 数据表格预览 */}
+              {/* 数据表格预览 - 使用虚拟滚动 */}
               <div className={styles.dataTableContainer}>
-                <table className={`${styles.dataTable} ${styles[theme]}`}>
-                  <thead>
-                    <tr>
-                      {previewDataset.data[0] && Object.keys(previewDataset.data[0]).map(key => (
-                        <th key={key} className={styles.tableHeader}>{key}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {previewDataset.data.slice(0, 10).map((item, index) => (
-                      <tr key={index}>
-                        {Object.values(item).map((value, i) => (
-                          <td key={i} className={styles.tableCell}>{String(value)}</td>
-                        ))}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-                {previewDataset.data.length > 10 && (
-                  <div className={styles.moreDataHint}>显示前10条数据，共{previewDataset.data.length}条</div>
-                )}
+                <VirtualizedTable 
+                  data={previewDataset.data} 
+                  height={400}
+                />
               </div>
               
               {/* 图表预览 */}
@@ -263,8 +248,10 @@ export const DataImport: React.FC<DataImportProps> = ({ onImportSuccess }) => {
       )}
 
       <div className={styles.header}>
-        <h1>数据导入</h1>
-        <p>上传您的数据文件，开始创建精美的图表</p>
+        <div className={styles.headerLeft}>
+          <h1>数据导入</h1>
+          <p>上传您的数据文件，开始创建精美的图表</p>
+        </div>
       </div>
       
       {/* 主内容区域 */}

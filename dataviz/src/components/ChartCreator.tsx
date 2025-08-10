@@ -429,7 +429,9 @@ const ChartCreator: React.FC = () => {
       {/* 中间编辑区域 */}
       <div className={`${styles.previewPanel} ${styles[theme]}`}>
         <div className={styles.previewHeader}>
-          <h2>图表预览</h2>
+          <div className={styles.previewHeaderLeft}>
+            <h2>图表预览</h2>
+          </div>
           <div className={styles.previewActions}>
             <button
               onClick={handleSave}

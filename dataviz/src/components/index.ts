@@ -2,6 +2,7 @@ export { default as Chart } from './Chart';
 export { default as Dashboard } from './Dashboard';
 export { default as ThemeToggle } from './ThemeToggle';
 export { default as DataImport } from './DataImport';
+export { default as EnhancedDataImport } from './upload/EnhancedDataImport';
 export { default as ChartEditor } from './ChartEditor';
 export { default as DashboardManager } from './DashboardManager';
 export { default as AIAnalysis } from './AIAnalysis';

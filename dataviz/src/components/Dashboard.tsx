@@ -23,10 +23,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ onEditChart }) => {
 
   return (
     <div className={`${styles.container} ${theme === 'dark' ? styles.dark : styles.light}`}>
-      <h1 className={`${styles.title} ${theme === 'dark' ? styles.dark : styles.light}`}>
-        {currentDashboard.title}
-        <span className={styles.chartCount}>({currentDashboard.charts.length} 个图表)</span>
-      </h1>
+      <div className={styles.dashboardHeader}>
+        <h1 className={`${styles.title} ${theme === 'dark' ? styles.dark : styles.light}`}>
+          {currentDashboard.title}
+          <span className={styles.chartCount}>({currentDashboard.charts.length} 个图表)</span>
+        </h1>
+      </div>
       
       <div className={styles.grid}>
         {currentDashboard.charts.map((chart) => (

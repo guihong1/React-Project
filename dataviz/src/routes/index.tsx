@@ -6,6 +6,7 @@ import {
   Dashboard, 
   ChartEditor, 
   DataImport, 
+  EnhancedDataImport,
   DashboardManager,
   AIAnalysis,
   NotFound 
@@ -32,7 +33,7 @@ const router = createBrowserRouter([
       },
       {
         path: 'import',
-        element: <DataImport />
+        element: <EnhancedDataImport />
       },
       {
         path: 'create',

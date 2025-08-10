@@ -20,7 +20,12 @@ export const ChartEditor: React.FC<ChartEditorProps> = ({
   const { chartId: paramChartId } = useParams<{ chartId: string }>();
   const chartId = propChartId || paramChartId;
   const navigate = useNavigate();
-  const { theme, charts, addChart, updateChart } = useAppStore();
+  const { 
+    theme, 
+    charts, 
+    addChart, 
+    updateChart
+  } = useAppStore();
   const [title, setTitle] = useState('');
   const [chartType, setChartType] = useState<ChartType>(initialChartType || 'bar');
   const [data, setData] = useState<DataPoint[]>([]);
@@ -58,6 +63,30 @@ export const ChartEditor: React.FC<ChartEditorProps> = ({
     }
     return [];
   };
+
+  const handleCancel = () => {
+    // 调用外部回调或导航
+    if (onCancel) {
+      onCancel();
+    } else {
+      navigate('/dashboard');
+    }
+  };
+
+  // 暂时禁用编辑模式历史记录功能，使用简单的状态管理
+  // 这样可以避免循环更新问题，确保项目正常运行
+  
+  // 直接使用原始的状态设置函数
+  const setTitleWithHistory = setTitle;
+  const setChartTypeWithHistory = setChartType;
+  const setBackgroundColorWithHistory = setBackgroundColor;
+  const setTextColorWithHistory = setTextColor;
+  const setBarColorWithHistory = setBarColor;
+  const setLineColorWithHistory = setLineColor;
+  const setShowLegendWithHistory = setShowLegend;
+  const setShowGridWithHistory = setShowGrid;
+
+  // 键盘快捷键处理已禁用，因为编辑模式历史记录功能已暂时禁用
 
   // 示例数据
   const sampleData: DataPoint[] = [
@@ -136,8 +165,6 @@ export const ChartEditor: React.FC<ChartEditorProps> = ({
           }
         }
         
-        // 宽度和高度已固定，不再需要设置
-        
         // 加载样式设置
         if (chartToEdit.backgroundColor) setBackgroundColor(chartToEdit.backgroundColor);
         if (chartToEdit.textColor) setTextColor(chartToEdit.textColor);
@@ -161,7 +188,7 @@ export const ChartEditor: React.FC<ChartEditorProps> = ({
         }
       }
     }
-  }, [chartId, charts]);
+  }, [chartId]); // 简化依赖，避免循环更新
 
   // 初始化时检查是否有选中的数据集ID
   useEffect(() => {
@@ -298,8 +325,12 @@ export const ChartEditor: React.FC<ChartEditorProps> = ({
       addChart(chartConfig);
     }
 
-    // 保存后导航到仪表板页面
-    navigate('/dashboard');
+    // 调用外部回调或导航
+    if (onSave) {
+      onSave();
+    } else {
+      navigate('/dashboard');
+    }
   };
 
   return (
@@ -318,7 +349,7 @@ export const ChartEditor: React.FC<ChartEditorProps> = ({
             id="chart-title"
             type="text"
             value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            onChange={(e) => setTitleWithHistory(e.target.value)}
             className={`${styles.input} ${styles[theme]}`}
             placeholder="输入图表标题"
           />
@@ -331,7 +362,7 @@ export const ChartEditor: React.FC<ChartEditorProps> = ({
           <select
             id="chart-type"
             value={chartType}
-            onChange={(e) => setChartType(e.target.value as ChartType)}
+            onChange={(e) => setChartTypeWithHistory(e.target.value as ChartType)}
             className={`${styles.select} ${styles[theme]}`}
         >
           <option value="bar">柱状图</option>
@@ -455,7 +486,7 @@ export const ChartEditor: React.FC<ChartEditorProps> = ({
               id="background-color"
               type="color"
               value={backgroundColor || '#ffffff'}
-              onChange={(e) => setBackgroundColor(e.target.value)}
+              onChange={(e) => setBackgroundColorWithHistory(e.target.value)}
               className={`${styles.colorInput} ${styles[theme]}`}
             />
           </div>
@@ -470,7 +501,7 @@ export const ChartEditor: React.FC<ChartEditorProps> = ({
               id="text-color"
               type="color"
               value={textColor || '#000000'}
-              onChange={(e) => setTextColor(e.target.value)}
+              onChange={(e) => setTextColorWithHistory(e.target.value)}
               className={`${styles.colorInput} ${styles[theme]}`}
             />
           </div>
@@ -488,7 +519,7 @@ export const ChartEditor: React.FC<ChartEditorProps> = ({
               id="bar-color"
               type="color"
               value={barColor}
-              onChange={(e) => setBarColor(e.target.value)}
+              onChange={(e) => setBarColorWithHistory(e.target.value)}
               className={`${styles.colorInput} ${styles[theme]}`}
             />
           </div>
@@ -506,7 +537,7 @@ export const ChartEditor: React.FC<ChartEditorProps> = ({
               id="line-color"
               type="color"
               value={lineColor}
-              onChange={(e) => setLineColor(e.target.value)}
+              onChange={(e) => setLineColorWithHistory(e.target.value)}
               className={`${styles.colorInput} ${styles[theme]}`}
             />
           </div>
@@ -518,7 +549,7 @@ export const ChartEditor: React.FC<ChartEditorProps> = ({
               <input
                 type="checkbox"
                 checked={showLegend}
-                onChange={(e) => setShowLegend(e.target.checked)}
+                onChange={(e) => setShowLegendWithHistory(e.target.checked)}
                 className={styles.checkbox}
               />
               显示图例
@@ -529,7 +560,7 @@ export const ChartEditor: React.FC<ChartEditorProps> = ({
                <input
                 type="checkbox"
                 checked={showGrid}
-                onChange={(e) => setShowGrid(e.target.checked)}
+                onChange={(e) => setShowGridWithHistory(e.target.checked)}
                 className={styles.checkbox}
               />
               显示网格
@@ -539,20 +570,20 @@ export const ChartEditor: React.FC<ChartEditorProps> = ({
       </div>
 
       <div className={styles.buttonGroup}>
-        {onCancel && (
+        <div className={styles.actionButtons}>
           <button
-            onClick={onCancel}
+            onClick={handleCancel}
             className={`${styles.button} ${styles.cancelButton} ${styles[theme]}`}
           >
             取消
           </button>
-        )}
-        <button
-          onClick={handleSave}
-          className={`${styles.button} ${styles.saveButton}`}
-        >
-          保存
-        </button>
+          <button
+            onClick={handleSave}
+            className={`${styles.button} ${styles.saveButton}`}
+          >
+            保存
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -1,0 +1,37 @@
+[
+  {
+    "id": 1,
+    "name": "测试数据1",
+    "value": 100,
+    "category": "类别A",
+    "timestamp": "2023-01-01T10:00:00Z"
+  },
+  {
+    "id": 2,
+    "name": "测试数据2",
+    "value": 200,
+    "category": "类别B",
+    "timestamp": "2023-01-02T10:00:00Z"
+  },
+  {
+    "id": 3,
+    "name": "测试数据3",
+    "value": 300,
+    "category": "类别A",
+    "timestamp": "2023-01-03T10:00:00Z"
+  },
+  {
+    "id": 4,
+    "name": "测试数据4",
+    "value": 400,
+    "category": "类别C",
+    "timestamp": "2023-01-04T10:00:00Z"
+  },
+  {
+    "id": 5,
+    "name": "测试数据5",
+    "value": 500,
+    "category": "类别B",
+    "timestamp": "2023-01-05T10:00:00Z"
+  }
+]

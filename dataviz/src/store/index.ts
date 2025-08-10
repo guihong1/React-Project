@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { v4 as uuidv4 } from 'uuid';
-import type { ChartConfig } from '../types/chart.js';
+import type { ChartConfig } from '../types/chart';
 import type { AppState, Dashboard, Theme, ImportedDataset, AIModel } from '../types';
 import { aiService } from '../services/ai';
 
@@ -59,6 +59,8 @@ interface AppStore extends AppState {
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
   
+
+  
   // AI配置相关操作
   setSelectedAIModel: (modelId: string) => void;
   addAIModel: (model: Omit<AIModel, 'id' | 'isCustom' | 'isDefault'>) => void;
@@ -66,6 +68,8 @@ interface AppStore extends AppState {
   deleteAIModel: (modelId: string) => void;
   setDefaultAIModel: (modelId: string) => void;
   testAIModelConnection: (modelId: string) => Promise<void>;
+  
+
 }
 
 // 预设的AI模型
@@ -180,6 +184,8 @@ export const useAppStore = create<AppStore>((set, get) => ({
   selectedAIModelId: persistedAIConfig.selectedModelId,
   isTestingConnection: false,
   testResult: null,
+  
+
 
   // Actions
   setTheme: (theme) => {
@@ -199,13 +205,19 @@ export const useAppStore = create<AppStore>((set, get) => ({
   addChart: (chart) => set((state) => {
     const newCharts = [...state.charts, chart];
     localStorage.setItem('charts', JSON.stringify(newCharts));
-    return { charts: newCharts };
+    
+    return { 
+      charts: newCharts
+    };
   }),
   
   removeChart: (chartId) => set((state) => {
     const newCharts = state.charts.filter(chart => chart.id !== chartId);
     localStorage.setItem('charts', JSON.stringify(newCharts));
-    return { charts: newCharts };
+    
+    return { 
+      charts: newCharts
+    };
   }),
   
   updateChart: (chartId, updates) => set((state) => {
@@ -224,13 +236,14 @@ export const useAppStore = create<AppStore>((set, get) => ({
         ...updatedDashboard,
         charts: dashboardCharts
       };
+    }
+    
+    localStorage.setItem('charts', JSON.stringify(updatedCharts));
+    if (updatedDashboard) {
       localStorage.setItem('currentDashboard', JSON.stringify(updatedDashboard));
     }
     
-    // 保存更新后的charts到localStorage
-    localStorage.setItem('charts', JSON.stringify(updatedCharts));
-    
-    return {
+    return { 
       charts: updatedCharts,
       currentDashboard: updatedDashboard
     };
@@ -239,12 +252,14 @@ export const useAppStore = create<AppStore>((set, get) => ({
   addImportedDataset: (dataset) => set((state) => {
     const newDatasets = [...state.importedDatasets, dataset];
     localStorage.setItem('importedDatasets', JSON.stringify(newDatasets));
+    
     return { importedDatasets: newDatasets };
   }),
   
   removeImportedDataset: (datasetId) => set((state) => {
     const newDatasets = state.importedDatasets.filter(dataset => dataset.id !== datasetId);
     localStorage.setItem('importedDatasets', JSON.stringify(newDatasets));
+    
     return { importedDatasets: newDatasets };
   }),
   
@@ -364,4 +379,9 @@ export const useAppStore = create<AppStore>((set, get) => ({
       });
     }
   },
-}));
+  
+
+  
+
+  })
+);

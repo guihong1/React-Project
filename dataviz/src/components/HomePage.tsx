@@ -186,6 +186,17 @@ const HomePage: React.FC = () => {
           AI分析
         </button>
       </div>
+
+      {/* 功能提示 */}
+      <div className={`${styles.featureTip} ${theme === 'dark' ? styles.dark : styles.light}`}>
+        <div className={styles.tipIcon}>💡</div>
+        <div className={styles.tipContent}>
+          <h4>操作历史记录功能</h4>
+          <p>撤销/重做和历史记录功能已集成到应用中！</p>
+          <p>📍 <strong>在仪表板页面</strong>和<strong>图表创建页面</strong>的右上角可以找到历史记录控制按钮</p>
+          <p>🔄 支持撤销、重做操作，以及查看完整的操作历史记录</p>
+        </div>
+      </div>
     </div>
   );
 };

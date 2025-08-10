@@ -8,6 +8,7 @@ import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { saveAs } from 'file-saver';
 
+
 // 分析类型定义
 type AnalysisType = 'basic' | 'advanced' | 'business' | 'prediction' | 'anomaly' | 'correlation' | 'clustering';
 
@@ -667,10 +668,11 @@ export const AIAnalysis: React.FC<AIAnalysisProps> = ({ data }) => {
       boxShadow: theme === 'dark' ? '0 4px 6px rgba(0, 0, 0, 0.3)' : '0 4px 6px rgba(0, 0, 0, 0.1)',
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
-        <div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
           <h2 style={{ color: theme === 'dark' ? '#fff' : '#333', margin: 0 }}>
             AI 数据洞察
           </h2>
+
           {selectedModel && (
             <div style={{ 
               fontSize: '14px', 
