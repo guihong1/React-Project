@@ -158,7 +158,7 @@ const AIConfig: React.FC = () => {
     try {
       new URL(url);
       return true;
-    } catch (e) {
+    } catch {
       return false;
     }
   };

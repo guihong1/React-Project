@@ -136,7 +136,7 @@ const parseExcelFile = async (file: File): Promise<DataPoint[]> => {
         // 如果第一行是表头，则移除它
         if (jsonData.length > 0 && typeof jsonData[0] === 'object') {
           // 检查第一行是否包含字符串值（可能是表头）
-          const firstRow = jsonData[0] as Record<string, any>;
+          const firstRow = jsonData[0] as Record<string, unknown>;
           const hasHeaderRow = Object.values(firstRow).some(value => 
             typeof value === 'string' && isNaN(Number(value))
           );
@@ -168,7 +168,7 @@ const parseExcelFile = async (file: File): Promise<DataPoint[]> => {
  * @param data 原始数据
  * @returns 验证并转换后的数据点数组
  */
-const validateAndTransformData = (data: any[]): DataPoint[] => {
+const validateAndTransformData = (data: unknown[]): DataPoint[] => {
   // 首先检查数据是否为空
   if (!data || data.length === 0) {
     throw new Error('导入的数据为空');
@@ -219,7 +219,7 @@ const validateAndTransformData = (data: any[]): DataPoint[] => {
  * @param item 数据项
  * @returns 字段映射
  */
-const determineFieldMapping = (item: any) => {
+const determineFieldMapping = (item: Record<string, unknown>) => {
   const fieldMap: {
     id: string;
     name: string;

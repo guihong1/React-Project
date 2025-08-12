@@ -4,8 +4,6 @@ import MainLayout from '../components/MainLayout';
 import HomePage from '../components/HomePage';
 import { 
   Dashboard, 
-  ChartEditor, 
-  DataImport, 
   EnhancedDataImport,
   DashboardManager,
   AIAnalysis,

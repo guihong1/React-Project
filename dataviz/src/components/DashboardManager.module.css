@@ -253,9 +253,10 @@
 /* 仪表板列表 */
 .dashboardList {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
   margin-bottom: 30px;
+  align-items: start;
 }
 
 .dashboardCard {
@@ -265,15 +266,18 @@
   border: 1px solid var(--border-light);
   box-shadow: var(--shadow);
   transition: all 0.3s ease;
-  height: 100%;
+  height: fit-content;
+  min-height: 200px;
   display: flex;
   flex-direction: column;
+  margin-bottom: 8px;
 }
 
 .dashboardCard:hover {
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
-  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  transform: translateY(-1px) scale(1.02);
   border-color: var(--border-color);
+  z-index: 10;
 }
 
 .dashboardCard.active {
@@ -445,6 +449,11 @@
     padding: 0;
   }
   
+  .dashboardList {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+  }
+  
   .createSection,
   .chartSection {
     padding: 20px;
@@ -453,10 +462,16 @@
   
   .dashboardCard {
     padding: 20px;
+    margin-bottom: 6px;
   }
 }
 
 @media (max-width: 768px) {
+  .dashboardList {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
   .createSection,
   .chartSection {
     padding: 16px;
@@ -466,6 +481,12 @@
   
   .dashboardCard {
     padding: 16px;
+    margin-bottom: 4px;
+    min-height: 180px;
+  }
+  
+  .dashboardCard:hover {
+    transform: translateY(-1px) scale(1.01);
   }
   
   .button {

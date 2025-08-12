@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppStore } from '../../store';
-import type { DataPoint } from '../../types/chart';
+
 import type { ImportedDataset } from '../../types';
 import type { DataPointWithOutlier } from '../../types/chart';
 import { getOutliersSummary } from '../../utils/outlierDetection';
@@ -26,9 +26,10 @@ export const EnhancedDataImport: React.FC<EnhancedDataImportProps> = ({ onImport
   const [parsedData, setParsedData] = useState<DataPointWithOutlier[] | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [showChunkedUploader, setShowChunkedUploader] = useState<boolean>(false);
-  const [isLargeFile, setIsLargeFile] = useState<boolean>(false);
+  const [, setIsLargeFile] = useState<boolean>(false);
   const [detectOutliers, setDetectOutliers] = useState<boolean>(true);
   const [outliersSummary, setOutliersSummary] = useState<ReturnType<typeof getOutliersSummary> | null>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   
   // 预览数据集相关状态
   const [previewDataset, setPreviewDataset] = useState<ImportedDataset | null>(null);
@@ -41,6 +42,15 @@ export const EnhancedDataImport: React.FC<EnhancedDataImportProps> = ({ onImport
       setDatasetName(nameWithoutExtension);
     }
   }, [fileName]);
+
+  // 清理定时器
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   // 处理文件上传完成后的解析
   const handleFileProcessed = async (file: File) => {
@@ -130,12 +140,12 @@ export const EnhancedDataImport: React.FC<EnhancedDataImportProps> = ({ onImport
     
     // 如果提供了导入成功回调，则调用它
     if (onImportSuccess) {
-      setTimeout(() => {
+      timeoutRef.current = setTimeout(() => {
         onImportSuccess();
       }, 2000);
     } else {
       // 否则2秒后导航到创建图表页面
-      setTimeout(() => {
+      timeoutRef.current = setTimeout(() => {
         navigate('/create');
       }, 2000);
     }
@@ -195,7 +205,7 @@ export const EnhancedDataImport: React.FC<EnhancedDataImportProps> = ({ onImport
       // 显示成功消息
       setSuccessMessage('数据集已成功删除');
       // 2秒后清除成功消息
-      setTimeout(() => {
+      timeoutRef.current = setTimeout(() => {
         setSuccessMessage(null);
       }, 2000);
     }

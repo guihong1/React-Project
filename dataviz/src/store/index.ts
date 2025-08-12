@@ -122,7 +122,7 @@ const loadAIModels = () => {
     const savedModels = localStorage.getItem('aiModels');
     const savedSelectedModelId = localStorage.getItem('selectedAIModelId');
     
-    let models = savedModels ? JSON.parse(savedModels) : presetAIModels;
+    const models = savedModels ? JSON.parse(savedModels) : presetAIModels;
     
     // 确保至少有一个默认模型
     if (!models.some(model => model.isDefault)) {

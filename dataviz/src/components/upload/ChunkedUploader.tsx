@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useAppStore } from '../../store';
 import styles from './ChunkedUploader.module.css';
 
@@ -59,7 +59,7 @@ const DEFAULT_CHUNK_CONFIG: ChunkConfig = {
 };
 
 // 模拟上传API（实际项目中应替换为真实的上传API）- 流式处理版本
-const mockUploadChunk = async (chunk: Chunk, fileId: string): Promise<void> => {
+const mockUploadChunk = async (chunk: Chunk): Promise<void> => {
   // 模拟网络延迟和随机成功/失败
   return new Promise((resolve, reject) => {
     const delay = 500 + Math.random() * 1000;
@@ -80,7 +80,7 @@ const mockUploadChunk = async (chunk: Chunk, fileId: string): Promise<void> => {
 };
 
 // 模拟合并分片API - 流式处理版本
-const mockMergeChunks = async (fileId: string, fileName: string, totalChunks: number): Promise<void> => {
+const mockMergeChunks = async (): Promise<void> => {
   // 模拟网络延迟
   return new Promise((resolve) => {
     // 在实际应用中，这里应该是服务器端的合并操作
@@ -98,10 +98,11 @@ export const ChunkedUploader: React.FC<ChunkedUploaderProps> = ({
   maxFileSize = 1024 * 1024 * 1024, // 1GB
   chunkConfig = {},
 }) => {
-  const { theme, setError, setLoading } = useAppStore();
+  const { theme } = useAppStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [uploadFile, setUploadFile] = useState<UploadFile | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [config] = useState<ChunkConfig>({
     ...DEFAULT_CHUNK_CONFIG,
     ...chunkConfig,
@@ -126,8 +127,8 @@ export const ChunkedUploader: React.FC<ChunkedUploaderProps> = ({
       console.error('保存上传状态失败:', err);
     }
   };
-  
-  // 从localStorage加载上传状态
+    
+    // 从localStorage加载上传状态
   const loadUploadState = (file: File): number[] => {
     try {
       const stateStr = localStorage.getItem(STORAGE_KEY);
@@ -216,7 +217,7 @@ export const ChunkedUploader: React.FC<ChunkedUploaderProps> = ({
   };
   
   // 上传单个分片（流式处理）
-  const uploadChunk = async (chunk: Chunk, fileId: string): Promise<void> => {
+  const uploadChunk = useCallback(async (chunk: Chunk): Promise<void> => {
     // 如果分片已上传成功，直接返回
     if (chunk.status === 'success') {
       return;
@@ -241,7 +242,7 @@ export const ChunkedUploader: React.FC<ChunkedUploaderProps> = ({
     
     try {
       // 在上传前才读取文件分片内容（流式处理）
-      let chunkWithData = {...chunk};
+      const chunkWithData = {...chunk};
       if (!uploadFile) throw new Error('上传文件不存在');
       
       // 只在需要时才从文件中读取分片数据
@@ -250,7 +251,7 @@ export const ChunkedUploader: React.FC<ChunkedUploaderProps> = ({
       }
       
       // 上传分片（实际项目中应替换为真实的上传API）
-      await mockUploadChunk(chunkWithData, fileId);
+      await mockUploadChunk(chunkWithData);
       
       // 上传完成后释放内存
       chunkWithData.file = null as unknown as Blob;
@@ -329,11 +330,40 @@ export const ChunkedUploader: React.FC<ChunkedUploaderProps> = ({
       
       throw error;
     }
-  };
+  }, [uploadFile, config, onUploadProgress]);
+  
+  // 处理下一个分片
+  const processNextChunk = useCallback(async (): Promise<void> => {
+    if (!uploadFile) return;
+    
+    let currentFile = uploadFile;
+    
+    while (currentFile) {
+      const nextChunk = currentFile.chunks.find(chunk => chunk.status === 'pending');
+
+      if (!nextChunk) {
+        // 所有分片都已处理，开始合并
+        await finalizeUpload();
+        return;
+      }
+
+      try {
+        await uploadChunk(nextChunk);
+        // 获取最新的文件状态
+        currentFile = uploadFile;
+      } catch (error) {
+        console.error('处理分片失败:', error);
+        if (onUploadError) {
+          onUploadError(error as Error);
+        }
+        return;
+      }
+    }
+  }, [uploadFile, finalizeUpload, uploadChunk, onUploadError]);
   
   // 开始或继续上传
-  const startUpload = async () => {
-    if (!uploadFile) return;
+  const startUpload = useCallback(async () => {
+    if (!uploadFile || uploadFile.status === 'uploading') return;
     
     // 更新文件状态为上传中
     setUploadFile(prev => {
@@ -343,7 +373,7 @@ export const ChunkedUploader: React.FC<ChunkedUploaderProps> = ({
     
     try {
       // 获取待上传的分片
-      const pendingChunks = uploadFile.chunks.filter(chunk => chunk.status !== 'success');
+      const pendingChunks = uploadFile.chunks.filter(chunk => chunk.status === 'pending');
       
       // 如果所有分片都已上传，直接合并
       if (pendingChunks.length === 0) {
@@ -351,22 +381,9 @@ export const ChunkedUploader: React.FC<ChunkedUploaderProps> = ({
         return;
       }
       
-      // 使用并发控制上传分片
-      const uploadTasks = [];
-      const concurrentUploads = Math.min(config.concurrentUploads, pendingChunks.length);
+      // 使用队列方式处理分片，避免并发竞态条件
+      await processNextChunk();
       
-      for (let i = 0; i < concurrentUploads; i++) {
-        uploadTasks.push(processNextChunk());
-      }
-      
-      await Promise.all(uploadTasks);
-      
-      // 检查是否所有分片都已上传成功
-      const allUploaded = uploadFile.chunks.every(chunk => chunk.status === 'success');
-      
-      if (allUploaded) {
-        await finalizeUpload();
-      }
     } catch (error) {
       console.error('上传过程中发生错误:', error);
       
@@ -381,61 +398,18 @@ export const ChunkedUploader: React.FC<ChunkedUploaderProps> = ({
         onUploadError(error);
       }
     }
-  };
+  }, [uploadFile, config, onUploadError, finalizeUpload, processNextChunk]);
   
-  // 处理下一个待上传的分片（流式处理）
-  const processNextChunk = async (): Promise<void> => {
-    if (!uploadFile) return;
-    
-    // 查找下一个待上传的分片
-    const nextChunk = uploadFile.chunks.find(chunk => chunk.status === 'pending');
-    
-    if (!nextChunk) {
-      // 没有待上传的分片了
-      return;
-    }
-    
-    try {
-      // 上传分片（流式处理，只在需要时才读取文件内容）
-      await uploadChunk(nextChunk, uploadFile.id);
-      
-      // 主动进行垃圾回收提示（实际效果取决于JavaScript引擎）
-      if (window.gc) {
-        try {
-          window.gc();
-        } catch (e) {
-          // 忽略错误
-        }
-      }
-      
-      // 递归处理下一个分片，但使用setTimeout避免调用栈溢出
-      // 同时给浏览器一些时间进行垃圾回收
-      return new Promise(resolve => {
-        setTimeout(() => {
-          processNextChunk().then(resolve);
-        }, 0);
-      });
-    } catch (error) {
-      // 如果分片上传失败且重试次数未超过限制，等待后重试
-      const chunk = uploadFile.chunks[nextChunk.id];
-      
-      if (chunk.status === 'pending' && chunk.retries <= config.retryTimes) {
-        await new Promise(resolve => setTimeout(resolve, config.retryDelay));
-        return processNextChunk();
-      }
-      
-      throw error;
-    }
-  };
+
   
   // 完成上传（合并分片）- 流式处理版本
-  const finalizeUpload = async () => {
+  const finalizeUpload = useCallback(async () => {
     if (!uploadFile) return;
     
     try {
       // 合并分片（实际项目中应替换为真实的合并API）
       // 在流式处理中，服务器端负责合并分片，客户端只需发送合并请求
-      await mockMergeChunks(uploadFile.id, uploadFile.name, uploadFile.chunks.length);
+      await mockMergeChunks();
       
       // 更新文件状态为已完成
       setUploadFile(prev => {
@@ -464,11 +438,6 @@ export const ChunkedUploader: React.FC<ChunkedUploaderProps> = ({
       if (onUploadComplete) {
         // 创建一个新的File对象引用，而不是保持对原始文件的引用
         // 这样原始文件可以被垃圾回收
-        const fileInfo = {
-          name: uploadFile.name,
-          type: uploadFile.type,
-          size: uploadFile.size
-        };
         onUploadComplete(uploadFile.file);
       }
       
@@ -481,7 +450,7 @@ export const ChunkedUploader: React.FC<ChunkedUploaderProps> = ({
       if (window.gc) {
         try {
           window.gc();
-        } catch (e) {
+        } catch {
           // 忽略错误
         }
       }
@@ -510,7 +479,7 @@ export const ChunkedUploader: React.FC<ChunkedUploaderProps> = ({
         onUploadError(error);
       }
     }
-  };
+  }, [uploadFile, onUploadComplete, onUploadError, onUploadProgress]);
   
   // 暂停上传
   const pauseUpload = () => {
@@ -529,8 +498,13 @@ export const ChunkedUploader: React.FC<ChunkedUploaderProps> = ({
   // 处理文件输入变化（流式处理）
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      // 获取文件引用，但不立即读取全部内容
-      handleFileSelect(e.target.files[0]);
+      try {
+        // 获取文件引用，但不立即读取全部内容
+        handleFileSelect(e.target.files[0]);
+      } catch (error) {
+        console.error('文件选择失败:', error);
+        setError(error instanceof Error ? error.message : '文件选择失败');
+      }
       
       // 清空input，避免内存泄漏
       if (fileInputRef.current) {
@@ -554,8 +528,13 @@ export const ChunkedUploader: React.FC<ChunkedUploaderProps> = ({
     setIsDragging(false);
     
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      // 获取文件引用，但不立即读取全部内容
-      handleFileSelect(e.dataTransfer.files[0]);
+      try {
+        // 获取文件引用，但不立即读取全部内容
+        handleFileSelect(e.dataTransfer.files[0]);
+      } catch (error) {
+        console.error('文件拖拽失败:', error);
+        setError(error instanceof Error ? error.message : '文件拖拽失败');
+      }
     }
   };
   
@@ -577,10 +556,23 @@ export const ChunkedUploader: React.FC<ChunkedUploaderProps> = ({
     if (uploadFile && uploadFile.status === 'pending') {
       startUpload();
     }
-  }, [uploadFile]);
+  }, [uploadFile, startUpload]);
   
   return (
     <div className={styles.container}>
+      {/* 错误信息显示 */}
+      {error && (
+        <div className={`${styles.errorMessage} ${styles[theme]}`}>
+          <span>❌ {error}</span>
+          <button 
+            className={styles.closeError}
+            onClick={() => setError(null)}
+          >
+            ×
+          </button>
+        </div>
+      )}
+      
       {/* 上传区域 */}
       {!uploadFile && (
         <div

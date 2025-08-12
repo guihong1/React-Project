@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useAppStore } from '../store';
-import type { DataPoint } from '../types/chart.js';
+import type { DataPoint } from '../types/chart';
 import type { AIModel, ImportedDataset } from '../types';
 import ReactMarkdown from 'react-markdown';
 import jsPDF from 'jspdf';
@@ -40,6 +40,12 @@ export const AIAnalysis: React.FC<AIAnalysisProps> = ({ data }) => {
   
   // 创建一个ref用于导出PDF
   const resultsRef = useRef<HTMLDivElement>(null);
+  
+  // 用于跟踪是否已经初始化分析状态
+  const isInitializedRef = useRef<boolean>(false);
+  
+  // 用于取消异步操作
+  const abortControllerRef = useRef<AbortController | null>(null);
   
   // 创建一个唯一的存储键，基于当前页面路径
   const storageKeyPrefix = 'aiAnalysis';
@@ -226,8 +232,9 @@ export const AIAnalysis: React.FC<AIAnalysisProps> = ({ data }) => {
     let timeoutCheck: number | null = null;
     
     if (isAnalyzing) {
-      // 如果已经有进度，说明是从localStorage恢复的状态，不需要重置
-      if (progress === 0) {
+      // 只在第一次开始分析时初始化
+      if (!isInitializedRef.current) {
+        isInitializedRef.current = true;
         setProgressWithStorage(0);
         setEstimatedTimeWithStorage(15); // 初始估计时间15秒
         setAnalysisStartTimeWithStorage(Date.now());
@@ -265,20 +272,20 @@ export const AIAnalysis: React.FC<AIAnalysisProps> = ({ data }) => {
         });
       }, 1000);
     } else {
-      // 只有在明确结束分析时才重置这些值
-      if (progress !== 100) { // 如果进度不是100%，说明不是正常完成的分析
-        setProgressWithStorage(0);
-        setEstimatedTimeWithStorage(0);
-        setAnalysisStartTimeWithStorage(null);
-      }
+      // 重置初始化标志
+      isInitializedRef.current = false;
     }
     
     return () => {
       if (progressInterval) window.clearInterval(progressInterval);
       if (timeInterval) window.clearInterval(timeInterval);
       if (timeoutCheck) window.clearTimeout(timeoutCheck);
+      // 取消正在进行的异步操作
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
     };
-  }, [isAnalyzing, progress, setProgressWithStorage, setEstimatedTimeWithStorage, setErrorWithStorage]);
+  }, [isAnalyzing, progress, setProgressWithStorage, setEstimatedTimeWithStorage, setErrorWithStorage, setAnalysisStartTimeWithStorage]);
 
   // 获取当前选中的AI模型
   const selectedModel = aiModels.find(model => model.id === selectedAIModelId);
@@ -300,6 +307,15 @@ export const AIAnalysis: React.FC<AIAnalysisProps> = ({ data }) => {
 
   // AI分析过程
   const analyzeData = async () => {
+    // 取消之前的操作
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    
+    // 创建新的AbortController
+    abortControllerRef.current = new AbortController();
+    const signal = abortControllerRef.current.signal;
+    
     // 获取选中的数据源
     const selectedSource = availableDataSources.find(source => source.id === selectedDataSource);
     const dataToAnalyze = selectedSource?.data;
@@ -313,11 +329,17 @@ export const AIAnalysis: React.FC<AIAnalysisProps> = ({ data }) => {
     if (!validateAIModel()) {
       return;
     }
+    
+    // 检查是否已被取消
+    if (signal.aborted) {
+      return;
+    }
 
     // 保存分析配置到localStorage，以便在页面刷新后恢复
     saveStateToStorage('selectedDataSourceData', dataToAnalyze);
     
-    // 重置状态
+    // 重置状态和初始化标志
+    isInitializedRef.current = false;
     setIsAnalyzingWithStorage(true);
     setInsightsWithStorage([]);
     setErrorWithStorage(null); // 清除之前的错误信息
@@ -337,7 +359,11 @@ export const AIAnalysis: React.FC<AIAnalysisProps> = ({ data }) => {
         setTimeout(() => {
           // 计算分析耗时（使用缓存的时间或模拟时间）
           const cachedTime = localStorage.getItem(getStorageKey(`${cacheKey}_time`));
-          const time = cachedTime ? JSON.parse(cachedTime) : 3; // 默认3秒
+          let time = cachedTime ? JSON.parse(cachedTime) : 3; // 默认3秒
+          // 确保时间是合理的秒数（如果是毫秒值则转换为秒）
+          if (time > 1000) {
+            time = Math.round(time / 1000);
+          }
           
           setAnalysisTimeWithStorage(time);
           setProgressWithStorage(100);
@@ -377,6 +403,10 @@ export const AIAnalysis: React.FC<AIAnalysisProps> = ({ data }) => {
       let time = 3; // 默认值
       if (analysisStartTime) {
         time = Math.round((Date.now() - analysisStartTime) / 1000);
+        // 确保时间是合理的（最大不超过300秒，即5分钟）
+        if (time > 300) {
+          time = 3; // 如果计算出的时间过长，使用默认值
+        }
         setAnalysisTimeWithStorage(time);
         console.log(`分析完成，耗时 ${time} 秒`);
       }
@@ -416,7 +446,8 @@ export const AIAnalysis: React.FC<AIAnalysisProps> = ({ data }) => {
   
   // 清除分析缓存
   const clearAnalysisCache = () => {
-    // 立即停止分析过程
+    // 立即停止分析过程和重置初始化标志
+    isInitializedRef.current = false;
     setIsAnalyzingWithStorage(false);
     
     // 清除所有分析相关的localStorage数据

@@ -8,7 +8,7 @@
  * @param workerFunction Worker函数或URL
  * @returns WebWorker实例
  */
-export const createWorker = (workerFunction: Function | string): Worker => {
+export const createWorker = (workerFunction: (() => void) | string): Worker => {
   if (typeof workerFunction === 'function') {
     // 将函数转换为Blob URL
     const functionStr = workerFunction.toString();
@@ -30,7 +30,7 @@ export const createWorker = (workerFunction: Function | string): Worker => {
  * @param outlierOptions 异常值检测选项
  * @returns Promise，解析成功后返回数据
  */
-export const parseFileWithWorker = (file: File, format: 'json' | 'csv' | 'excel' | 'auto', detectOutliers: boolean = false, outlierOptions?: any): Promise<any> => {
+export const parseFileWithWorker = (file: File, format: 'json' | 'csv' | 'excel' | 'auto', detectOutliers: boolean = false, outlierOptions?: Record<string, unknown>): Promise<{ data: unknown[]; summary?: unknown }> => {
   return new Promise((resolve, reject) => {
     // 创建Worker
     const worker = new Worker(new URL('../workers/dataProcessingWorker.ts', import.meta.url));
@@ -54,10 +54,17 @@ export const parseFileWithWorker = (file: File, format: 'json' | 'csv' | 'excel'
       worker.terminate();
     };
     
+    // 添加超时处理
+    const timeoutId = setTimeout(() => {
+      reject(new Error('文件解析超时'));
+      worker.terminate();
+    }, 30000); // 30秒超时
+    
     // 根据文件类型处理
     const fileReader = new FileReader();
     
     fileReader.onload = (e) => {
+      clearTimeout(timeoutId);
       const result = e.target?.result;
       if (!result) {
         reject(new Error('文件读取失败'));
@@ -98,21 +105,29 @@ export const parseFileWithWorker = (file: File, format: 'json' | 'csv' | 'excel'
       } else if (fileType === 'excel') {
         // Excel文件需要特殊处理，目前Worker中不支持直接解析Excel
         // 可以考虑在主线程中解析后再发送到Worker进行异常值检测
-        reject(new Error('Excel文件解析暂不支持在Worker中进行，请使用其他格式'));
+        reject(new Error('Excel文件解析暂不支持，请转换为CSV格式'));
         worker.terminate();
+        return;
       }
     };
     
     fileReader.onerror = () => {
-      reject(new Error('文件读取错误'));
+      clearTimeout(timeoutId);
+      reject(new Error('文件读取失败'));
       worker.terminate();
     };
     
     // 根据文件类型选择读取方式
-    if (format === 'excel' || (format === 'auto' && (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')))) {
-      fileReader.readAsArrayBuffer(file);
-    } else {
-      fileReader.readAsText(file);
+    try {
+      if (format === 'excel' || (format === 'auto' && (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')))) {
+        fileReader.readAsArrayBuffer(file);
+      } else {
+        fileReader.readAsText(file);
+      }
+    } catch (error) {
+      clearTimeout(timeoutId);
+      reject(new Error(`文件读取启动失败: ${error instanceof Error ? error.message : String(error)}`));
+      worker.terminate();
     }
   });
 };
@@ -123,7 +138,7 @@ export const parseFileWithWorker = (file: File, format: 'json' | 'csv' | 'excel'
  * @param options 异常值检测选项
  * @returns Promise，检测完成后返回带有异常值标记的数据
  */
-export const detectOutliersWithWorker = (data: any[], options?: any): Promise<any> => {
+export const detectOutliersWithWorker = (data: unknown[], options?: Record<string, unknown>): Promise<{ data: unknown[]; summary?: unknown }> => {
   return new Promise((resolve, reject) => {
     // 创建Worker
     const worker = new Worker(new URL('../workers/dataProcessingWorker.ts', import.meta.url));

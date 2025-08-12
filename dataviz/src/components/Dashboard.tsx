@@ -4,11 +4,9 @@ import { useAppStore } from '../store';
 import Chart from './Chart';
 import styles from './Dashboard.module.css';
 
-interface DashboardProps {
-  onEditChart?: (chartId: string) => void;
-}
+type DashboardProps = object;
 
-export const Dashboard: React.FC<DashboardProps> = ({ onEditChart }) => {
+export const Dashboard: React.FC<DashboardProps> = () => {
   const { currentDashboard, theme } = useAppStore();
   const navigate = useNavigate();
 

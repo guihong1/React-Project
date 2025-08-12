@@ -317,6 +317,6 @@ export const clusteringAnalysisPrompt = `
  * @param template 提示词模板
  * @returns 填充了数据的提示词
  */
-export const createPrompt = (data: any, template: string): string => {
+export const createPrompt = (data: unknown, template: string): string => {
   return template.replace('{{data}}', JSON.stringify(data, null, 2));
 };

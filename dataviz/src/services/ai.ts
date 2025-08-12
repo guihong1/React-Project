@@ -14,6 +14,56 @@ import {
  * AI服务类 - 处理与AI模型的通信
  */
 class AIService {
+  private readonly DEFAULT_TIMEOUT = 30000; // 30秒超时
+  private readonly MAX_RETRIES = 3; // 最大重试次数
+
+  /**
+   * 创建带超时的fetch请求
+   */
+  private async fetchWithTimeout(url: string, options: RequestInit, timeout: number = this.DEFAULT_TIMEOUT): Promise<Response> {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+    try {
+      const response = await fetch(url, {
+        ...options,
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+      return response;
+    } catch (error) {
+      clearTimeout(timeoutId);
+      if (error instanceof Error && error.name === 'AbortError') {
+        throw new Error('请求超时');
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * 带重试的请求方法
+   */
+  private async fetchWithRetry(url: string, options: RequestInit, retries: number = this.MAX_RETRIES): Promise<Response> {
+    let lastError: Error;
+    
+    for (let i = 0; i <= retries; i++) {
+      try {
+        return await this.fetchWithTimeout(url, options);
+      } catch (error) {
+        lastError = error instanceof Error ? error : new Error(String(error));
+        
+        if (i === retries) {
+          throw lastError;
+        }
+        
+        // 指数退避延迟
+        const delay = Math.min(1000 * Math.pow(2, i), 10000);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+    }
+    
+    throw lastError!;
+  }
   /**
    * 测试AI模型连接
    * @param model AI模型配置
@@ -60,7 +110,7 @@ class AIService {
    */
   private async testOpenAI(model: AIModel): Promise<{ success: boolean; message: string }> {
     try {
-      const response = await fetch(`${model.apiEndpoint}`, {
+      const response = await this.fetchWithRetry(`${model.apiEndpoint}`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${model.apiKey}`,
@@ -102,7 +152,7 @@ class AIService {
       // 获取访问令牌
       const accessToken = await this.getBaiduAccessToken(model);
       
-      const response = await fetch(model.apiEndpoint, {
+      const response = await this.fetchWithRetry(model.apiEndpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

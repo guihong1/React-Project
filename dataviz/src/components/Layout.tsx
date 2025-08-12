@@ -1,12 +1,12 @@
 import React from 'react';
-import { NavLink, Outlet, useNavigate, useParams } from 'react-router-dom';
+import { NavLink, Outlet, useParams } from 'react-router-dom';
 import { useAppStore } from '../store';
 import { ThemeToggle } from './index';
 import styles from '../pages/Home.module.css';
 
 const Layout: React.FC = () => {
   const { theme } = useAppStore();
-  const navigate = useNavigate();
+
   const params = useParams();
   const { chartId } = params;
   

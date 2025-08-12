@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAppStore } from '../store';
 import type { DataPoint } from '../types/chart';
 import type { ImportedDataset } from '../types';
@@ -24,6 +24,7 @@ export const DataImport: React.FC<DataImportProps> = ({ onImportSuccess }) => {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [selectedFormat, setSelectedFormat] = useState<FileFormat>('auto');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   
   // 预览数据集相关状态
   const [previewDataset, setPreviewDataset] = useState<ImportedDataset | null>(null);
@@ -45,6 +46,15 @@ export const DataImport: React.FC<DataImportProps> = ({ onImportSuccess }) => {
       setDatasetName(nameWithoutExtension);
     }
   }, [fileName]);
+
+  // 清理定时器
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   const processFile = async (file: File) => {
     // 清除之前的错误和成功消息
@@ -106,12 +116,12 @@ export const DataImport: React.FC<DataImportProps> = ({ onImportSuccess }) => {
     
     // 如果提供了导入成功回调，则调用它
     if (onImportSuccess) {
-      setTimeout(() => {
+      timeoutRef.current = setTimeout(() => {
         onImportSuccess();
       }, 2000);
     } else {
       // 否则2秒后导航到创建图表页面
-      setTimeout(() => {
+      timeoutRef.current = setTimeout(() => {
         navigate('/create');
       }, 2000);
     }

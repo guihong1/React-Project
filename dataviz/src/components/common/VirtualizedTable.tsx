@@ -4,7 +4,7 @@ import styles from '../DataImport.module.css';
 import { useAppStore } from '../../store';
 
 interface VirtualizedTableProps {
-  data: any[];
+  data: Record<string, unknown>[];
   height?: number;
   itemHeight?: number;
   className?: string;

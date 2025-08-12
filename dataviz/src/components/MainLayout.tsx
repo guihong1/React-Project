@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { NavLink, Outlet, useLocation } from 'react-router-dom';
+import React from 'react';
+import { NavLink, Outlet } from 'react-router-dom';
 import { useAppStore } from '../store';
 import { ThemeToggle } from './index';
-import type { ChartType } from '../types';
+
 import styles from './MainLayout.module.css';
 
 interface NavigationItem {
@@ -12,8 +12,8 @@ interface NavigationItem {
 }
 
 const MainLayout: React.FC = () => {
-  const { theme, charts } = useAppStore();
-  const location = useLocation();
+  const { theme } = useAppStore();
+
 
   const navigationItems: NavigationItem[] = [
     {
@@ -72,7 +72,7 @@ const MainLayout: React.FC = () => {
     }
   ];
 
-  const isChartEditorPage = location.pathname.includes('/create') || location.pathname.includes('/edit');
+
 
   return (
     <div className={`${styles.layout} ${theme === 'dark' ? styles.dark : styles.light}`}>

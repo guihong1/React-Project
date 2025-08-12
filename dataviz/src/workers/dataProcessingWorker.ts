@@ -264,7 +264,7 @@ const getOutliersSummary = (data: DataPointWithOutlier[]): {
 };
 
 // 验证并转换数据为DataPoint格式
-const validateAndTransformData = (data: any[]): DataPoint[] => {
+const validateAndTransformData = (data: unknown[]): DataPoint[] => {
   // 首先检查数据是否为空
   if (!data || data.length === 0) {
     throw new Error('导入的数据为空');
@@ -311,7 +311,7 @@ const validateAndTransformData = (data: any[]): DataPoint[] => {
 };
 
 // 确定字段映射关系
-const determineFieldMapping = (item: any) => {
+const determineFieldMapping = (item: Record<string, unknown>) => {
   const fieldMap: {
     id: string;
     name: string;
@@ -367,7 +367,7 @@ const determineFieldMapping = (item: any) => {
 // 解析JSON文件
 const parseJsonData = (jsonString: string): DataPoint[] => {
   try {
-    const data = JSON.parse(jsonString);
+    const data: unknown = JSON.parse(jsonString);
     
     if (!Array.isArray(data)) {
       throw new Error('导入的JSON数据必须是数组格式');
@@ -391,7 +391,7 @@ const parseCsvData = (csvString: string): DataPoint[] => {
       if (!lines[i].trim()) continue; // 跳过空行
       
       const values = lines[i].split(',');
-      const item: Record<string, any> = {};
+      const item: Record<string, unknown> = {};
       
       for (let j = 0; j < headers.length; j++) {
         const value = values[j]?.trim() || '';
@@ -414,7 +414,7 @@ self.addEventListener('message', (event) => {
     const { type, data, options } = event.data;
     
     switch (type) {
-      case 'parseJson':
+      case 'parseJson': {
         const jsonData = parseJsonData(data);
         if (options?.detectOutliers) {
           const dataWithOutliers = detectOutliers(jsonData, options.outlierOptions);
@@ -424,8 +424,9 @@ self.addEventListener('message', (event) => {
           self.postMessage({ type: 'parseResult', data: jsonData });
         }
         break;
+      }
         
-      case 'parseCsv':
+      case 'parseCsv': {
         const csvData = parseCsvData(data);
         if (options?.detectOutliers) {
           const dataWithOutliers = detectOutliers(csvData, options.outlierOptions);
@@ -435,12 +436,14 @@ self.addEventListener('message', (event) => {
           self.postMessage({ type: 'parseResult', data: csvData });
         }
         break;
+      }
         
-      case 'detectOutliers':
+      case 'detectOutliers': {
         const dataWithOutliers = detectOutliers(data, options);
         const summary = getOutliersSummary(dataWithOutliers);
         self.postMessage({ type: 'outlierResult', data: dataWithOutliers, summary });
         break;
+      }
         
       default:
         throw new Error(`未知的操作类型: ${type}`);
